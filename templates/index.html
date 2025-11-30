@@ -2,10 +2,375 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>NUAM - Inicio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma Financiera NUAM</title>
+    <!-- Carga del CDN de Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+    <style>
+        /* Configuración de la fuente Inter y estilos base para el modo oscuro */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0F172A; 
+            color: #E2E8F0; 
+            transition: all 0.3s ease;
+        }
+
+        /* ------------------------------------------------------------------------- */
+        /* Lógica CSS para simular el cambio de pantalla sin JavaScript (usando :target) */
+        /* Definimos los contenedores principales (vistas) */
+        #login-view, #dashboard-view, #consultas-view {
+            display: none;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* 1. LOGIN VIEW (Por defecto si no hay fragmento en la URL o si es #login-view) */
+        html:not(:has(#dashboard-view:target)):not(:has(#consultas-view:target)) #login-view, 
+        #login-view:target {
+            display: flex; /* Login necesita flex para centrar contenido */
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* 2. AUTHENTICATED VIEWS (Dashboard y Consultas) */
+        #dashboard-view:target, #consultas-view:target {
+            display: flex;
+            flex-direction: column; /* La aplicación autenticada es un flex-column (Header + Main) */
+        }
+        
+        /* Colores de Marca y Estilos de Navegación */
+        .sidebar {
+            width: 280px;
+            background-color: #1E293B; /* Slate-800 para el sidebar */
+        }
+        
+        .nav-link {
+            transition: background-color 0.2s, color 0.2s;
+            border-left: 4px solid transparent; /* Para el indicador de pestaña */
+            color: #CBD5E1; /* Slate-300 */
+        }
+        
+        .nav-link:hover {
+            background-color: #334155; /* Slate-700 al pasar el ratón */
+        }
+        
+        /* Estilo para simular el enlace activo/seleccionado (Cyan-600) */
+        /* Utilizar clases para simular la activación dentro de la vista actual */
+        .active-dashboard .link-dashboard, 
+        .active-consultas .link-consultas {
+            background-color: #0E7490; /* Cyan-600 */
+            color: white;
+            border-left: 4px solid #A5F3FC; /* Indicador de acento Cyan-200 */
+        }
+
+        /* Color de acento (Cyan-400) para el branding y elementos clave */
+        .accent-bg {
+            background-color: #22D3EE; 
+        }
+        .accent-text {
+            color: #22D3EE;
+        }
+    </style>
 </head>
-<body>
-    <h1>Bienvenido a NUAM</h1>
-    <p>Tu proyecto Django está funcionando correctamente 😎</p>
+<body class="m-0 p-0">
+
+    <!-- 1. PANTALLA DE LOGIN (#login-view) -->
+    <section id="login-view" class="h-full w-full">
+        <div class="w-full max-w-md bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700">
+            <h1 class="text-4xl font-extrabold text-white text-center mb-6">NUAM <span class="accent-text">Finance</span></h1>
+            <p class="text-slate-400 text-center mb-8">Acceso a los mercados consolidados de Santiago, Colombia y Lima.</p>
+            
+            <form>
+                <div class="mb-4">
+                    <label for="email" class="block text-sm font-medium text-slate-300 mb-1">Correo Electrónico</label>
+                    <input type="email" id="email" name="email" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="usuario@nuam.com" required>
+                </div>
+                
+                <div class="mb-6">
+                    <label for="password" class="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
+                    <input type="password" id="password" name="password" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500" placeholder="********" required>
+                </div>
+                
+                <!-- Botón de Login (Navega al Dashboard) -->
+                <a href="#dashboard-view" class="block text-center w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 rounded-xl transition duration-300 shadow-lg shadow-cyan-900/50">
+                    Iniciar Sesión
+                </a>
+            </form>
+            
+            <p class="mt-6 text-center text-sm text-slate-400">
+                <a href="#" class="hover:text-cyan-400 transition duration-200">¿Olvidaste tu contraseña?</a>
+            </p>
+        </div>
+    </section>
+
+    <!-- 2. PANTALLA PRINCIPAL (DASHBOARD VIEW) -->
+    <!-- Se le añade la clase 'active-dashboard' para simular la pestaña activa en el sidebar -->
+    <section id="dashboard-view" class="active-dashboard">
+        
+        <!-- HEADER / Top Bar -->
+        <header class="h-16 flex items-center justify-between px-6 bg-slate-900 shadow-lg border-b border-slate-700 flex-shrink-0">
+            <div class="text-2xl font-extrabold text-white">NUAM <span class="accent-text">Finance</span></div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 border-l border-slate-700 pl-4">
+                    <div class="w-8 h-8 rounded-full accent-bg flex items-center justify-center text-slate-900 font-semibold text-sm">A</div>
+                    <div class="hidden sm:block text-sm text-slate-300">Admin. Analista</div>
+                    <a href="#login-view" class="text-slate-400 hover:text-red-500 transition duration-200 ml-2 p-1 rounded-md" title="Cerrar Sesión">
+                        <!-- Icono de Salir -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT: SIDEBAR + CONTENT -->
+        <main class="flex flex-1 overflow-hidden">
+            
+            <!-- SIDEBAR DE NAVEGACIÓN -->
+            <nav class="sidebar flex-shrink-0 h-full border-r border-slate-700 flex flex-col hidden lg:flex">
+                <div class="p-4 text-xs font-semibold uppercase text-slate-500 tracking-wider">Menú Principal</div>
+                <div class="sidebar-nav flex-1 space-y-1 p-2">
+                    <!-- Pestaña: Inicio (Dashboard) -->
+                    <a href="#dashboard-view" class="nav-link link-dashboard flex items-center p-3 rounded-lg text-sm">
+                        <!-- Icono de Home -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        Inicio (Dashboard)
+                    </a>
+                    
+                    <!-- Pestaña: Consultas Consolidadas -->
+                    <a href="#consultas-view" class="nav-link link-consultas flex items-center p-3 rounded-lg text-sm">
+                        <!-- Icono de Búsqueda -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></svg>
+                        Consultas Consolidadas
+                    </a>
+                    
+                    <!-- Pestañas adicionales -->
+                    <a href="#" class="nav-link flex items-center p-3 rounded-lg text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                        Reportes y Análisis
+                    </a>
+                    <a href="#" class="nav-link flex items-center p-3 rounded-lg text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="m2 12 2-2"/><path d="m20 12 2-2"/><path d="m4.93 19.07 1.41-1.41"/><path d="m17.66 6.34 1.41-1.41"/></svg>
+                        Administración
+                    </a>
+                </div>
+            </nav>
+
+            <!-- CONTENIDO ESPECÍFICO DEL DASHBOARD -->
+            <div class="flex-1 p-6 overflow-y-auto">
+                
+                <h2 class="text-3xl font-bold mb-6 text-white">Dashboard Consolidado NUAM</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <!-- Tarjeta 1: Valor Consolidado Total -->
+                    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+                        <div class="text-sm font-semibold text-slate-400 uppercase">Valor Consolidado (USD)</div>
+                        <div class="flex items-center mt-1">
+                            <!-- CAMBIO: text-4xl a text-3xl -->
+                            <div class="text-3xl font-extrabold text-cyan-400">$ 452.8B</div>
+                            <span class="ml-4 text-green-400 text-sm font-semibold">+2.15%</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Comparado con la semana anterior</p>
+                    </div>
+
+                    <!-- Tarjeta 2: Bolsa de Santiago (Chile) -->
+                    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+                        <div class="text-sm font-semibold text-slate-400 uppercase">Bolsa de Santiago (IPSA)</div>
+                        <div class="flex items-center mt-1">
+                            <!-- CAMBIO: text-4xl a text-3xl -->
+                            <div class="text-3xl font-extrabold text-white">6,654.21</div>
+                            <span class="ml-4 text-red-400 text-sm font-semibold">-0.88%</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Cierre diario</p>
+                    </div>
+
+                    <!-- Tarjeta 3: Bolsa de Colombia (COLCAP) -->
+                    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+                        <div class="text-sm font-semibold text-slate-400 uppercase">Bolsa de Colombia (COLCAP)</div>
+                        <div class="flex items-center mt-1">
+                            <!-- CAMBIO: text-4xl a text-3xl -->
+                            <div class="text-3xl font-extrabold text-white">1,450.75</div>
+                            <span class="ml-4 text-green-400 text-sm font-semibold">+1.02%</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Cierre diario</p>
+                    </div>
+
+                    <!-- Tarjeta 4: Bolsa de Lima (SP/BVL) -->
+                    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+                        <div class="text-sm font-semibold text-slate-400 uppercase">Bolsa de Lima (SP/BVL)</div>
+                        <div class="flex items-center mt-1">
+                            <!-- CAMBIO: text-4xl a text-3xl -->
+                            <div class="text-3xl font-extrabold text-white">28,901.40</div>
+                            <span class="ml-4 text-green-400 text-sm font-semibold">+0.55%</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">Cierre diario</p>
+                    </div>
+                </div>
+                
+                <!-- Placeholder del Gráfico y Tabla -->
+                <div class="bg-slate-800 p-6 rounded-xl shadow-xl border border-slate-700">
+                    <h3 class="text-xl font-semibold mb-4 text-white">Acciones realizadas</h3>
+                    <div class="h-64 w-full bg-slate-700 flex items-center justify-center rounded-lg border-2 border-dashed border-slate-600">
+                        <p class="text-slate-500 text-lg">Visualización de datos principales</p>
+                    </div>
+                </div>
+
+                <footer class="mt-10 text-center text-sm text-slate-600 border-t border-slate-800 pt-4">
+                    Plataforma NUAM - Dashboard.
+                </footer>
+            </div>
+        </main>
+        
+    </section>
+    
+    <!-- 3. PANTALLA DE CONSULTAS CONSOLIDADAS (#consultas-view) -->
+    <!-- Se le añade la clase 'active-consultas' para simular la pestaña activa en el sidebar -->
+    <section id="consultas-view" class="active-consultas">
+        
+        <!-- HEADER / Top Bar (Duplicado por simulación CSS) -->
+        <header class="h-16 flex items-center justify-between px-6 bg-slate-900 shadow-lg border-b border-slate-700 flex-shrink-0">
+            <div class="text-2xl font-extrabold text-white">NUAM <span class="accent-text">Finance</span></div>
+            <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-2 border-l border-slate-700 pl-4">
+                    <div class="w-8 h-8 rounded-full accent-bg flex items-center justify-center text-slate-900 font-semibold text-sm">A</div>
+                    <div class="hidden sm:block text-sm text-slate-300">Admin. Analista</div>
+                    <a href="#login-view" class="text-slate-400 hover:text-red-500 transition duration-200 ml-2 p-1 rounded-md" title="Cerrar Sesión">
+                        <!-- Icono de Salir -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+                    </a>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN LAYOUT: SIDEBAR + CONTENT -->
+        <main class="flex flex-1 overflow-hidden">
+            
+            <!-- SIDEBAR DE NAVEGACIÓN -->
+            <nav class="sidebar flex-shrink-0 h-full border-r border-slate-700 flex flex-col hidden lg:flex">
+                <div class="p-4 text-xs font-semibold uppercase text-slate-500 tracking-wider">Menú Principal</div>
+                <div class="sidebar-nav flex-1 space-y-1 p-2">
+                    <!-- Pestaña: Inicio (Dashboard) -->
+                    <a href="#dashboard-view" class="nav-link link-dashboard flex items-center p-3 rounded-lg text-sm">
+                        <!-- Icono de Home -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                        Inicio (Dashboard)
+                    </a>
+                    
+                    <!-- Pestaña: Consultas Consolidadas - Activa -->
+                    <a href="#consultas-view" class="nav-link link-consultas flex items-center p-3 rounded-lg text-sm">
+                        <!-- Icono de Búsqueda -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></svg>
+                        Consultas Consolidadas
+                    </a>
+                    
+                    <!-- Pestañas adicionales -->
+                    <a href="#" class="nav-link flex items-center p-3 rounded-lg text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
+                        Reportes y Análisis
+                    </a>
+                    <a href="#" class="nav-link flex items-center p-3 rounded-lg text-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3"><path d="M12 20a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z"/><path d="M12 14a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="m2 12 2-2"/><path d="m20 12 2-2"/><path d="m4.93 19.07 1.41-1.41"/><path d="m17.66 6.34 1.41-1.41"/></svg>
+                        Administración
+                    </a>
+                </div>
+            </nav>
+
+            <!-- CONTENIDO ESPECÍFICO DE CONSULTAS -->
+            <div class="flex-1 p-6 overflow-y-auto">
+                
+                <h2 class="text-3xl font-bold mb-6 text-white">Consulta de Valores Históricos y Actuales</h2>
+                <p class="text-slate-400 mb-6">Filtra y compara información de las Bolsas de Santiago, Colombia y Lima.</p>
+
+                <!-- Área de Filtros Rápidos (Respondiendo al requerimiento del PO) -->
+                <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700 mb-8">
+                    <h3 class="text-xl font-semibold mb-4 text-cyan-400">Filtros de Búsqueda Rápida</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        
+                        <!-- Filtro 1: Bolsa de Origen -->
+                        <div>
+                            <label for="bolsa" class="block text-sm font-medium text-slate-300 mb-1">Bolsa</label>
+                            <select id="bolsa" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                                <option>Consolidado NUAM</option>
+                                <option>Bolsa de Santiago (Chile)</option>
+                                <option>Bolsa de Colombia</option>
+                                <option>Bolsa de Lima (Perú)</option>
+                            </select>
+                        </div>
+                        
+                        <!-- Filtro 2: Instrumento / Acción -->
+                        <div>
+                            <label for="instrumento" class="block text-sm font-medium text-slate-300 mb-1">Símbolo / Instrumento</label>
+                            <input type="text" id="instrumento" placeholder="Ej: CCU, ECOPETROL..." class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        </div>
+
+                        <!-- Filtro 3: Rango de Fecha -->
+                        <div>
+                            <label for="fecha" class="block text-sm font-medium text-slate-300 mb-1">Fecha de Inicio</label>
+                            <input type="date" id="fecha" value="2024-01-01" class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-cyan-500">
+                        </div>
+
+                        <!-- Botón de Búsqueda -->
+                        <div class="flex items-end">
+                            <button type="submit" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2.5 rounded-lg transition duration-300 flex items-center justify-center">
+                                <!-- Icono de Lupa -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/></svg>
+                                Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tabla de Resultados Consolidados -->
+                <div class="bg-slate-800 p-6 rounded-xl shadow-xl border border-slate-700">
+                    <h3 class="text-xl font-semibold mb-4 text-white">Resultados (Datos Históricos)</h3>
+                    
+                    <div class="overflow-x-auto rounded-lg">
+                        <table class="min-w-full divide-y divide-slate-700">
+                            <thead class="bg-slate-700">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider rounded-tl-lg">Fecha</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Bolsa</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Símbolo</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Precio Apertura</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider">Precio Cierre</th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-slate-300 uppercase tracking-wider rounded-tr-lg">Volumen</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-700">
+                                <tr class="hover:bg-slate-700/70 transition duration-150">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">2024-03-25</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">Santiago</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-400 font-bold">CCU</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">CLP 10,100</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">CLP 10,250</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">4.5M</td>
+                                </tr>
+                                <tr class="hover:bg-slate-700/70 transition duration-150">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">2024-03-25</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">Colombia</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-400 font-bold">ECOPETROL</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">COP 2,750</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">COP 2,800</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">3.1M</td>
+                                </tr>
+                                <tr class="hover:bg-slate-700/70 transition duration-150">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">2024-03-25</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">Lima</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-cyan-400 font-bold">BAP</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">PEN 55.00</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-white">PEN 55.50</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-300">1.8M</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <footer class="mt-10 text-center text-sm text-slate-600 border-t border-slate-800 pt-4">
+                    Plataforma NUAM - Consultas Consolidadas.
+                </footer>
+            </div>
+        </main>
+    </section>
 </body>
 </html>

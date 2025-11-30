@@ -14,3 +14,5 @@ db.sqlite3
 
 # OS junk files
 Thumbs.db
+
+venv/

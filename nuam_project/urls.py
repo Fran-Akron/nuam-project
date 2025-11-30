@@ -3,5 +3,5 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('nuapp.urls')),   # <- esta línea conecta tu app
+    path('', include('nuapp.urls')),   # conecta con las rutas de la app
 ]
