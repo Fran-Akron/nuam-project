@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard Usuario - NUAM{% endblock %}
+
+{% block content %}
+<div class="flex-1 p-6 overflow-y-auto">
+
+    <h2 class="text-3xl font-bold mb-2 text-white">
+        Hola, {{ colaborador.persona.nombre|default:"Usuario" }} 👋
+    </h2>
+    <p class="text-slate-400 mb-6">
+        Bienvenido a tu panel NUAM. Aquí puedes revisar el estado consolidado de los mercados
+        y acceder rápidamente a tus consultas.
+    </p>
+
+    <!-- Resumen principal usuario -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        
+        <!-- Consolidado NUAM -->
+        <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+            <div class="text-sm font-semibold text-slate-400 uppercase">
+                Valor consolidado NUAM (USD)
+            </div>
+            <div class="flex items-baseline mt-2">
+                <div class="text-3xl font-extrabold text-cyan-400">
+                    {{ valor_consolidado|default:"452.8B" }}
+                </div>
+                <span class="ml-3 text-green-400 text-sm font-semibold">
+                    {{ variacion_consolidado|default:"+2.15%" }}
+                </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">
+                Comparado con la semana anterior.
+            </p>
+        </div>
+
+        <!-- Última consulta -->
+        <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+            <div class="text-sm font-semibold text-slate-400 uppercase">
+                Tu última consulta
+            </div>
+            <div class="mt-2 text-slate-200 text-sm">
+                Bolsa:
+                <span class="font-semibold text-white">
+                    {{ ultima_consulta.bolsa|default:"Santiago" }}
+                </span><br>
+                Símbolo:
+                <span class="font-semibold text-cyan-400">
+                    {{ ultima_consulta.simbolo|default:"CCU" }}
+                </span><br>
+                Fecha:
+                <span class="text-slate-400">
+                    {{ ultima_consulta.fecha|default:"2025-12-01" }}
+                </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">
+                Puedes volver a ejecutar esta consulta desde el módulo de Consultas Consolidadas.
+            </p>
+        </div>
+
+        <!-- Accesos rápidos -->
+        <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700 flex flex-col justify-between">
+            <div>
+                <div class="text-sm font-semibold text-slate-400 uppercase mb-2">
+                    Accesos rápidos
+                </div>
+                <p class="text-slate-300 text-sm mb-4">
+                    Atajos a las funciones que más usarás como analista.
+                </p>
+            </div>
+            <div class="space-y-2">
+                <a href="{% url 'consultas' %}"
+                   class="block w-full text-center bg-cyan-600 hover:bg-cyan-700 text-white font-semibold py-2 rounded-lg text-sm transition">
+                    Ir a Consultas Consolidadas
+                </a>
+                <a href="#"
+                   class="block w-full text-center bg-slate-700 hover:bg-slate-600 text-slate-100 font-semibold py-2 rounded-lg text-sm transition">
+                    Ver reportes descargados
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Zona central: Acciones realizadas -->
+    <div class="bg-slate-800 p-6 rounded-xl shadow-xl border border-slate-700">
+        <h3 class="text-xl font-semibold mb-4 text-white">
+            Acciones recientes
+        </h3>
+        <div class="h-64 w-full bg-slate-700 flex items-center justify-center rounded-lg border-2 border-dashed border-slate-600">
+            <p class="text-slate-500 text-lg">
+                Aquí podrás ver tus últimas consultas, comparaciones y gráficos.
+            </p>
+        </div>
+    </div>
+
+    <footer class="mt-10 text-center text-sm text-slate-600 border-t border-slate-800 pt-4">
+        Plataforma NUAM - Panel de usuario.
+    </footer>
+</div>
+{% endblock %}

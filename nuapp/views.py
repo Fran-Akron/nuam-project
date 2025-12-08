@@ -59,3 +59,53 @@ def consultas_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+
+
+def registrar_view(request):
+    return render(request, 'registrar.html')
+
+
+def preview_dashboard_admin(request):
+    return render(request, 'dashboard_admin.html')
+
+def preview_dashboard_user(request):
+    return render(request, 'dashboard_user.html')
+
+
+from django.contrib.auth.models import User
+
+def crear_cuenta_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+        password2 = request.POST.get('password2')
+
+        # Validaciones
+        if password != password2:
+            return render(request, 'crear_cuenta.html', {
+                'error': 'Las contraseñas no coinciden'
+            })
+
+        if User.objects.filter(username=username).exists():
+            return render(request, 'crear_cuenta.html', {
+                'error': 'El nombre de usuario ya está registrado'
+            })
+
+        if User.objects.filter(email=email).exists():
+            return render(request, 'crear_cuenta.html', {
+                'error': 'El correo electrónico ya está registrado'
+            })
+
+        # Crear usuario normal (no admin)
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password
+        )
+
+        user.save()
+
+        return redirect('login')
+
+    return render(request, 'crear_cuenta.html')
