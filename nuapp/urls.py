@@ -11,5 +11,7 @@ urlpatterns = [
     # 👉 Rutas temporales para ver los nuevos templates
     path('preview/admin/', views.preview_dashboard_admin),
     path('preview/user/', views.preview_dashboard_user),
-    path('crear-cuenta/', views.crear_cuenta_view, name='crear_cuenta')
+    path('crear-cuenta/', views.crear_cuenta_view, name='crear_cuenta'),
+    
+    
 ]
