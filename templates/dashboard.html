@@ -139,13 +139,65 @@
 
         </div>
 
-        <!-- Placeholder gráfico -->
+        <!-- =======================
+              GRÁFICO DE TENDENCIAS
+        ========================= -->
         <div class="bg-slate-800 p-6 rounded-xl shadow-xl border border-slate-700">
-            <h3 class="text-xl font-semibold mb-4 text-white">Acciones realizadas</h3>
-            <div class="h-64 w-full bg-slate-700 flex items-center justify-center rounded-lg border-2 border-dashed border-slate-600">
-                <p class="text-slate-500 text-lg">Visualización de datos principales</p>
-            </div>
+            <h3 class="text-xl font-semibold mb-4 text-white">Tendencia semanal de mercados</h3>
+            <canvas id="graficoMercados" class="w-full h-64"></canvas>
         </div>
+
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script>
+        const ctx = document.getElementById('graficoMercados').getContext('2d');
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: {{ fechas|safe }},
+                datasets: [
+                    {
+                        label: 'Santiago (IPSA)',
+                        data: {{ hist_ipsa|safe }},
+                        borderColor: '#22D3EE',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Colombia (EWC)',
+                        data: {{ hist_ewc|safe }},
+                        borderColor: '#4ade80',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.3
+                    },
+                    {
+                        label: 'Perú (EPU)',
+                        data: {{ hist_epu|safe }},
+                        borderColor: '#60a5fa',
+                        borderWidth: 2,
+                        fill: false,
+                        tension: 0.3
+                    },
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        labels: { color: '#E2E8F0' }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#94A3B8' } },
+                    y: { ticks: { color: '#94A3B8' } }
+                }
+            }
+        });
+        </script>
 
         <footer class="mt-10 text-center text-sm text-slate-600 border-t border-slate-800 pt-4">
             Plataforma NUAM - Dashboard.
