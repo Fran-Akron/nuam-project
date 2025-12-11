@@ -113,7 +113,7 @@ def dashboard_view(request):
     valor_chile = obtener_indice("^IPSA")
     valor_colombia = obtener_indice("EWC")
     valor_peru = obtener_indice("EPU")
-    valor_dolar = obtener_indice("CLP=X")
+    usd_clp = obtener_indice("CLP=X")
 
     # Históricos 7 días
     fechas_ipsa, hist_ipsa = obtener_historico("^IPSA")
@@ -124,7 +124,7 @@ def dashboard_view(request):
         "valor_chile": valor_chile,
         "valor_colombia": valor_colombia,
         "valor_peru": valor_peru,
-        "valor_dolar": valor_dolar,
+        "usd_clp": usd_clp,
 
         # Datos para Chart.js
         "fechas": json.dumps(fechas_ipsa),
@@ -137,14 +137,10 @@ def dashboard_view(request):
 
 
 # =========================================================
-#   CONSULTAS (VERSIÓN SIMPLE UNIVERSIDAD)
-# =========================================================
-# =========================================================
 #   CONSULTAS CONSOLIDADAS — DATOS REALES
 # =========================================================
 @login_required
 def consultas_view(request):
-    # Tickers usados en NUAM
     tickers = {
         "Chile (IPSA)": "^IPSA",
         "Colombia (EWC)": "EWC",
@@ -156,7 +152,7 @@ def consultas_view(request):
 
     for nombre, simbolo in tickers.items():
 
-        # --- Precio actual ---
+        # PRECIO ACTUAL
         try:
             data = yf.Ticker(simbolo).history(period="1d")
             precio_actual = round(float(data["Close"].iloc[-1]), 2)
@@ -169,7 +165,7 @@ def consultas_view(request):
             "precio": precio_actual
         })
 
-        # --- Historial (7 días) ---
+        # HISTÓRICO 7 DÍAS
         try:
             hist = yf.Ticker(simbolo).history(period="7d")
             fechas = hist.index.strftime("%Y-%m-%d").tolist()
@@ -184,6 +180,15 @@ def consultas_view(request):
     }
 
     return render(request, "consultas.html", contexto)
+
+
+# =========================================================
+#   REPORTES Y ANÁLISIS — NUEVA VISTA
+# =========================================================
+@login_required
+def reportes_view(request):
+    return render(request, "reportes.html")
+
 
 # =========================================================
 #   LOGOUT

@@ -19,7 +19,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Sidebar y navegación */
         .sidebar {
             width: 280px;
             background-color: #1E293B;
@@ -35,7 +34,6 @@
             background-color: #334155;
         }
 
-        /* Indicador de pestaña */
         .active-link {
             background-color: #0E7490;
             color: white !important;
@@ -65,13 +63,15 @@
                 </div>
                 <div class="hidden sm:block text-sm text-slate-300">Admin. Analista</div>
 
-                <!-- Logout -->
-                <a href="/login" class="text-slate-400 hover:text-red-500 transition duration-200 ml-2 p-1 rounded-md" title="Cerrar Sesión">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-                        <polyline points="16 17 21 12 16 7" />
-                        <line x1="21" x2="9" y1="12" y2="12" />
+                <a href="/logout" 
+                   class="text-slate-400 hover:text-red-500 transition duration-200 ml-2 p-1 rounded-md" 
+                   title="Cerrar Sesión">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                         <polyline points="16 17 21 12 16 7"/>
+                         <line x1="21" x2="9" y1="12" y2="12"/>
                     </svg>
                 </a>
             </div>
@@ -90,30 +90,42 @@
 
             <div class="sidebar-nav flex-1 space-y-1 p-2">
 
-                <a href="/dashboard" class="nav-link flex items-center p-3 rounded-lg text-sm {% if active_page == 'dashboard' %}active-link{% endif %}">
+                <!-- DASHBOARD -->
+                <a href="{% url 'dashboard' %}" 
+                   class="nav-link flex items-center p-3 rounded-lg text-sm {% if active_page == 'dashboard' %}active-link{% endif %}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round" class="mr-3">
-                        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                        <polyline points="9 22 9 12 15 12 15 22" />
+                        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                        <polyline points="9 22 9 12 15 12 15 22"/>
                     </svg>
                     Inicio (Dashboard)
                 </a>
 
-                <a href="/consultas" class="nav-link flex items-center p-3 rounded-lg text-sm {% if active_page == 'consultas' %}active-link{% endif %}">
+                <!-- CONSULTAS -->
+                <a href="{% url 'consultas' %}" 
+                   class="nav-link flex items-center p-3 rounded-lg text-sm {% if active_page == 'consultas' %}active-link{% endif %}">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                         stroke-linecap="round" stroke-linejoin="round" class="mr-3">
-                        <circle cx="11" cy="11" r="8" />
-                        <line x1="21" x2="16.65" y1="21" y2="16.65" />
+                        <circle cx="11" cy="11" r="8"/>
+                        <line x1="21" x2="16.65" y1="21" y2="16.65"/>
                     </svg>
                     Consultas Consolidadas
                 </a>
 
-                <a href="#" class="nav-link flex items-center p-3 rounded-lg text-sm">
+                <!-- REPORTES -->
+                <a href="{% url 'reportes' %}" 
+                   class="nav-link flex items-center p-3 rounded-lg text-sm {% if active_page == 'reportes' %}active-link{% endif %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                         stroke-linecap="round" stroke-linejoin="round" class="mr-3">
+                         <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
+                    </svg>
                     Reportes y Análisis
                 </a>
 
+                <!-- ADMIN -->
                 <a href="#" class="nav-link flex items-center p-3 rounded-lg text-sm">
                     Administración
                 </a>

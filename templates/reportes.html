@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% with active_page="reportes" %}
+
+{% block title %}Reportes y Análisis - NUAM{% endblock %}
+
+{% block content %}
+
+<h2 class="text-3xl font-bold mb-6 text-white">Reportes y Análisis</h2>
+<p class="text-slate-400 mb-6">
+    Vista general de indicadores clave y resúmenes consolidados de las bolsas de Santiago, Colombia y Lima.
+</p>
+
+<!-- Tarjetas resumen simples (placeholder por ahora) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+        <div class="text-sm font-semibold text-slate-400 uppercase">Resumen diario</div>
+        <p class="mt-2 text-slate-300 text-sm">
+            Aquí mostraremos un resumen de cómo cerraron las bolsas hoy (subidas, bajadas, etc.).
+        </p>
+    </div>
+
+    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+        <div class="text-sm font-semibold text-slate-400 uppercase">Top movimientos</div>
+        <p class="mt-2 text-slate-300 text-sm">
+            Luego podemos listar los instrumentos con mayor variación en el día.
+        </p>
+    </div>
+
+    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+        <div class="text-sm font-semibold text-slate-400 uppercase">Volumen destacado</div>
+        <p class="mt-2 text-slate-300 text-sm">
+            Y también los activos con mayor volumen operado.
+        </p>
+    </div>
+
+</div>
+
+<footer class="mt-10 text-center text-sm text-slate-600 border-t border-slate-800 pt-4">
+    Plataforma NUAM - Reportes y Análisis.
+</footer>
+
+{% endblock %}
+{% endwith %}

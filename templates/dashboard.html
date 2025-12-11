@@ -5,205 +5,116 @@
 
 {% block content %}
 
-<!-- =======================
-    HEADER CON DATOS REALES
-======================== -->
-<header class="h-16 flex items-center justify-between px-6 bg-slate-900 shadow-lg border-b border-slate-700 flex-shrink-0">
+<h2 class="text-3xl font-bold mb-6 text-white">Dashboard Consolidado NUAM</h2>
 
-    <!-- LOGO -->
-    <div class="text-2xl font-extrabold text-white">
-        NUAM <span class="accent-text">Finance</span>
+<!-- Tarjetas Resumen -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+    <!-- IPSA CHILE -->
+    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+        <div class="text-sm font-semibold text-slate-400 uppercase">Bolsa de Santiago (IPSA)</div>
+        <div class="flex items-center mt-1">
+            <div class="text-3xl font-extrabold text-white">
+                {{ valor_chile|default:"Sin datos" }}
+            </div>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">Cierre diario</p>
     </div>
 
-    <!-- DATOS DEL COLABORADOR -->
-    <div class="flex items-center space-x-4 border-l border-slate-700 pl-4">
-        <div class="w-8 h-8 rounded-full bg-cyan-400 flex items-center justify-center text-slate-900 font-semibold text-sm">
-            {{ colaborador.persona.nombre|first|upper }}
+    <!-- COLOMBIA -->
+    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+        <div class="text-sm font-semibold text-slate-400 uppercase">Bolsa de Colombia (EWC)</div>
+        <div class="flex items-center mt-1">
+            <div class="text-3xl font-extrabold text-white">
+                {{ valor_colombia|default:"Sin datos" }}
+            </div>
         </div>
-
-        <div class="hidden sm:block text-sm text-slate-300 leading-tight">
-            {{ colaborador.persona.nombre }} {{ colaborador.persona.apellido }}
-            <br>
-            <span class="text-cyan-400 text-xs">{{ colaborador.cargo }}</span>
-        </div>
-
-        <a href="{% url 'logout' %}" 
-           class="text-slate-400 hover:text-red-500 transition duration-200 ml-2 p-1 rounded-md"
-           title="Cerrar Sesión">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                 <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                 <polyline points="16 17 21 12 16 7"/>
-                 <line x1="21" x2="9" y1="12" y2="12"/>
-            </svg>
-        </a>
+        <p class="text-xs text-slate-500 mt-1">Cierre diario</p>
     </div>
-</header>
 
+    <!-- PERÚ -->
+    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+        <div class="text-sm font-semibold text-slate-400 uppercase">Bolsa de Lima (EPU)</div>
+        <div class="flex items-center mt-1">
+            <div class="text-3xl font-extrabold text-white">
+                {{ valor_peru|default:"Sin datos" }}
+            </div>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">Cierre diario</p>
+    </div>
+
+    <!-- USD / CLP -->
+    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+        <div class="text-sm font-semibold text-slate-400 uppercase">Dólar Observado (USD/CLP)</div>
+        <div class="flex items-center mt-1">
+            <div class="text-3xl font-extrabold text-white">
+                {{ valor_dolar|default:"Sin datos" }}
+            </div>
+        </div>
+        <p class="text-xs text-slate-500 mt-1">Tipo de cambio actualizado</p>
+    </div>
+
+</div>
 
 <!-- =======================
-      CONTENIDO PRINCIPAL
+      GRÁFICO DE TENDENCIAS
 ======================== -->
-<main class="flex flex-1 overflow-hidden">
+<div class="bg-slate-800 p-6 rounded-xl shadow-xl border border-slate-700">
+    <h3 class="text-xl font-semibold mb-4 text-white">Tendencia semanal de mercados</h3>
+    <canvas id="graficoMercados" class="w-full h-64"></canvas>
+</div>
 
-    <!-- SIDEBAR -->
-    <nav class="sidebar flex-shrink-0 h-full border-r border-slate-700 flex flex-col hidden lg:flex">
-        <div class="p-4 text-xs font-semibold uppercase text-slate-500 tracking-wider">Menú Principal</div>
-        <div class="sidebar-nav flex-1 space-y-1 p-2">
-            
-            <a href="{% url 'dashboard' %}" class="nav-link active-dashboard flex items-center p-3 rounded-lg text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
-                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                    <polyline points="9 22 9 12 15 12 15 22"/>
-                </svg>
-                Inicio (Dashboard)
-            </a>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-            <a href="{% url 'consultas' %}" class="nav-link link-consultas flex items-center p-3 rounded-lg text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
-                    <circle cx="11" cy="11" r="8"/>
-                    <line x1="21" x2="16.65" y1="21" y2="16.65"/>
-                </svg>
-                Consultas Consolidadas
-            </a>
+<script>
+const ctx = document.getElementById('graficoMercados').getContext('2d');
 
-            <a href="#" class="nav-link flex items-center p-3 rounded-lg text-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                     viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3">
-                    <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
-                </svg>
-                Reportes y Análisis
-            </a>
-        </div>
-    </nav>
-
-
-
-    <!-- CONTENIDO CENTRAL -->
-    <div class="flex-1 p-6 overflow-y-auto">
-        
-        <h2 class="text-3xl font-bold mb-6 text-white">Dashboard Consolidado NUAM</h2>
-
-        <!-- Tarjetas Resumen -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-
-            <!-- IPSA CHILE -->
-            <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-                <div class="text-sm font-semibold text-slate-400 uppercase">Bolsa de Santiago (IPSA)</div>
-                <div class="flex items-center mt-1">
-                    <div class="text-3xl font-extrabold text-white">
-                        {{ valor_chile|default:"Sin datos" }}
-                    </div>
-                </div>
-                <p class="text-xs text-slate-500 mt-1">Cierre diario</p>
-            </div>
-
-            <!-- COLOMBIA -->
-            <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-                <div class="text-sm font-semibold text-slate-400 uppercase">Bolsa de Colombia (EWC)</div>
-                <div class="flex items-center mt-1">
-                    <div class="text-3xl font-extrabold text-white">
-                        {{ valor_colombia|default:"Sin datos" }}
-                    </div>
-                </div>
-                <p class="text-xs text-slate-500 mt-1">Cierre diario</p>
-            </div>
-
-            <!-- PERÚ -->
-            <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-                <div class="text-sm font-semibold text-slate-400 uppercase">Bolsa de Lima (EPU)</div>
-                <div class="flex items-center mt-1">
-                    <div class="text-3xl font-extrabold text-white">
-                        {{ valor_peru|default:"Sin datos" }}
-                    </div>
-                </div>
-                <p class="text-xs text-slate-500 mt-1">Cierre diario</p>
-            </div>
-
-            <!-- USD / CLP -->
-            <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-                <div class="text-sm font-semibold text-slate-400 uppercase">Dólar Observado (USD/CLP)</div>
-                <div class="flex items-center mt-1">
-                    <div class="text-3xl font-extrabold text-white">
-                        {{ usd_clp|default:"Sin datos" }}
-                    </div>
-                </div>
-                <p class="text-xs text-slate-500 mt-1">Tipo de cambio actualizado</p>
-            </div>
-
-        </div>
-
-        <!-- =======================
-              GRÁFICO DE TENDENCIAS
-        ========================= -->
-        <div class="bg-slate-800 p-6 rounded-xl shadow-xl border border-slate-700">
-            <h3 class="text-xl font-semibold mb-4 text-white">Tendencia semanal de mercados</h3>
-            <canvas id="graficoMercados" class="w-full h-64"></canvas>
-        </div>
-
-        <!-- Chart.js -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-        <script>
-        const ctx = document.getElementById('graficoMercados').getContext('2d');
-
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: {{ fechas|safe }},
-                datasets: [
-                    {
-                        label: 'Santiago (IPSA)',
-                        data: {{ hist_ipsa|safe }},
-                        borderColor: '#22D3EE',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.3
-                    },
-                    {
-                        label: 'Colombia (EWC)',
-                        data: {{ hist_ewc|safe }},
-                        borderColor: '#4ade80',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.3
-                    },
-                    {
-                        label: 'Perú (EPU)',
-                        data: {{ hist_epu|safe }},
-                        borderColor: '#60a5fa',
-                        borderWidth: 2,
-                        fill: false,
-                        tension: 0.3
-                    },
-                ]
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: {{ fechas|safe }},
+        datasets: [
+            {
+                label: 'Santiago (IPSA)',
+                data: {{ hist_ipsa|safe }},
+                borderColor: '#22D3EE',
+                borderWidth: 2,
+                fill: false,
+                tension: 0.3
             },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        labels: { color: '#E2E8F0' }
-                    }
-                },
-                scales: {
-                    x: { ticks: { color: '#94A3B8' } },
-                    y: { ticks: { color: '#94A3B8' } }
-                }
-            }
-        });
-        </script>
+            {
+                label: 'Colombia (EWC)',
+                data: {{ hist_ewc|safe }},
+                borderColor: '#4ade80',
+                borderWidth: 2,
+                fill: false,
+                tension: 0.3
+            },
+            {
+                label: 'Perú (EPU)',
+                data: {{ hist_epu|safe }},
+                borderColor: '#60a5fa',
+                borderWidth: 2,
+                fill: false,
+                tension: 0.3
+            },
+        ]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: { labels: { color: '#E2E8F0' } }
+        },
+        scales: {
+            x: { ticks: { color: '#94A3B8' } },
+            y: { ticks: { color: '#94A3B8' } }
+        }
+    }
+});
+</script>
 
-        <footer class="mt-10 text-center text-sm text-slate-600 border-t border-slate-800 pt-4">
-            Plataforma NUAM - Dashboard.
-        </footer>
-    </div>
-
-</main>
+<footer class="mt-10 text-center text-sm text-slate-600 border-t border-slate-800 pt-4">
+    Plataforma NUAM - Dashboard.
+</footer>
 
 {% endblock %}
