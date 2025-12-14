@@ -10,28 +10,53 @@
     Vista general de indicadores clave y resúmenes consolidados de las bolsas de Santiago, Colombia y Lima.
 </p>
 
-<!-- Tarjetas resumen simples (placeholder por ahora) -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
+    <!-- RESUMEN DIARIO -->
     <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-        <div class="text-sm font-semibold text-slate-400 uppercase">Resumen diario</div>
-        <p class="mt-2 text-slate-300 text-sm">
-            Aquí mostraremos un resumen de cómo cerraron las bolsas hoy (subidas, bajadas, etc.).
+        <div class="text-sm font-semibold text-slate-400 uppercase mb-2">Resumen Diario</div>
+
+        {% for item in resumen %}
+            <p class="text-sm text-slate-300">
+                {{ item.mercado }}:
+                <span class="text-white font-semibold">{{ item.cierre }}</span>
+                {% if item.variacion < 0 %}
+                    <span class="text-red-400">({{ item.variacion }}%)</span>
+                {% else %}
+                    <span class="text-green-400">(+{{ item.variacion }}%)</span>
+                {% endif %}
+            </p>
+        {% empty %}
+            <p class="text-slate-400 text-sm">No hay datos disponibles.</p>
+        {% endfor %}
+    </div>
+
+    <!-- TOP MOVIMIENTOS -->
+    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
+        <div class="text-sm font-semibold text-slate-400 uppercase mb-2">Top Movimientos</div>
+        <p class="text-slate-300 text-sm">
+            No se registran movimientos extremos durante la jornada.
         </p>
     </div>
 
+    <!-- VOLUMEN DESTACADO -->
     <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-        <div class="text-sm font-semibold text-slate-400 uppercase">Top movimientos</div>
-        <p class="mt-2 text-slate-300 text-sm">
-            Luego podemos listar los instrumentos con mayor variación en el día.
-        </p>
-    </div>
+        <div class="text-sm font-semibold text-slate-400 uppercase mb-2">
+            Actividad del Mercado
+        </div>
 
-    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-        <div class="text-sm font-semibold text-slate-400 uppercase">Volumen destacado</div>
-        <p class="mt-2 text-slate-300 text-sm">
-            Y también los activos con mayor volumen operado.
-        </p>
+        {% if mercado_mas_activo %}
+            <p class="text-slate-300 text-sm">
+                El mercado con mayor movimiento del día fue:
+            </p>
+            <p class="text-cyan-400 font-bold text-lg mt-1">
+                {{ mercado_mas_activo.mercado }}
+            </p>
+        {% else %}
+            <p class="text-slate-400 text-sm">
+                No se pudo determinar el mercado más activo.
+            </p>
+        {% endif %}
     </div>
 
 </div>

@@ -1,120 +1,169 @@
 {% extends "base.html" %}
-{% load static %}
-
+{% with active_page="dashboard" %}
 {% block title %}Dashboard - NUAM{% endblock %}
 
 {% block content %}
 
-<h2 class="text-3xl font-bold mb-6 text-white">Dashboard Consolidado NUAM</h2>
+<h2 class="text-3xl font-bold mb-2 text-white">Dashboard Consolidado NUAM</h2>
+<p class="text-slate-400 mb-1">
+    Visualización resumida del comportamiento semanal de los principales mercados.
+</p>
+<p class="text-slate-500 text-sm mb-6">
+    Datos actualizados al: {{ updated_at }}
+</p>
 
-<!-- Tarjetas Resumen -->
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+<!-- =========================
+     TARJETAS SUPERIORES
+========================= -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
 
-    <!-- IPSA CHILE -->
-    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-        <div class="text-sm font-semibold text-slate-400 uppercase">Bolsa de Santiago (IPSA)</div>
-        <div class="flex items-center mt-1">
-            <div class="text-3xl font-extrabold text-white">
-                {{ valor_chile|default:"Sin datos" }}
-            </div>
+    <!-- CHILE -->
+    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
+        <div class="text-sm text-slate-400 uppercase">Chile (IPSA)</div>
+        <div class="text-3xl font-extrabold text-white mt-1">
+            {{ valor_chile|default:"Sin datos" }}
+            {% if trend_chile == "up" %}
+                <span class="text-green-400 text-xl">▲</span>
+            {% elif trend_chile == "down" %}
+                <span class="text-red-400 text-xl">▼</span>
+            {% endif %}
         </div>
-        <p class="text-xs text-slate-500 mt-1">Cierre diario</p>
+        <div class="text-xs text-slate-500">Variación diaria</div>
     </div>
 
     <!-- COLOMBIA -->
-    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-        <div class="text-sm font-semibold text-slate-400 uppercase">Bolsa de Colombia (EWC)</div>
-        <div class="flex items-center mt-1">
-            <div class="text-3xl font-extrabold text-white">
-                {{ valor_colombia|default:"Sin datos" }}
-            </div>
+    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
+        <div class="text-sm text-slate-400 uppercase">Colombia (EWC)</div>
+        <div class="text-3xl font-extrabold text-white mt-1">
+            {{ valor_colombia }}
+            {% if trend_colombia == "up" %}
+                <span class="text-green-400 text-xl">▲</span>
+            {% elif trend_colombia == "down" %}
+                <span class="text-red-400 text-xl">▼</span>
+            {% endif %}
         </div>
-        <p class="text-xs text-slate-500 mt-1">Cierre diario</p>
+        <div class="text-xs text-slate-500">Variación diaria</div>
     </div>
 
     <!-- PERÚ -->
-    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-        <div class="text-sm font-semibold text-slate-400 uppercase">Bolsa de Lima (EPU)</div>
-        <div class="flex items-center mt-1">
-            <div class="text-3xl font-extrabold text-white">
-                {{ valor_peru|default:"Sin datos" }}
-            </div>
+    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
+        <div class="text-sm text-slate-400 uppercase">Perú (EPU)</div>
+        <div class="text-3xl font-extrabold text-white mt-1">
+            {{ valor_peru }}
+            {% if trend_peru == "up" %}
+                <span class="text-green-400 text-xl">▲</span>
+            {% elif trend_peru == "down" %}
+                <span class="text-red-400 text-xl">▼</span>
+            {% endif %}
         </div>
-        <p class="text-xs text-slate-500 mt-1">Cierre diario</p>
+        <div class="text-xs text-slate-500">Variación diaria</div>
     </div>
 
-    <!-- USD / CLP -->
-    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-        <div class="text-sm font-semibold text-slate-400 uppercase">Dólar Observado (USD/CLP)</div>
-        <div class="flex items-center mt-1">
-            <div class="text-3xl font-extrabold text-white">
-                {{ valor_dolar|default:"Sin datos" }}
-            </div>
+    <!-- USD -->
+    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
+        <div class="text-sm text-slate-400 uppercase">USD / CLP</div>
+        <div class="text-3xl font-extrabold text-white mt-1">
+            {{ usd_clp }}
         </div>
-        <p class="text-xs text-slate-500 mt-1">Tipo de cambio actualizado</p>
+        <div class="text-xs text-slate-500">Tipo de cambio</div>
     </div>
 
 </div>
 
-<!-- =======================
-      GRÁFICO DE TENDENCIAS
-======================== -->
-<div class="bg-slate-800 p-6 rounded-xl shadow-xl border border-slate-700">
-    <h3 class="text-xl font-semibold mb-4 text-white">Tendencia semanal de mercados</h3>
-    <canvas id="graficoMercados" class="w-full h-64"></canvas>
+<!-- =========================
+     GRÁFICOS (3 INDEPENDIENTES)
+========================= -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+
+    <!-- IPSA -->
+    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 h-72">
+        <h3 class="text-sm font-semibold text-white mb-2">Santiago (IPSA)</h3>
+        <canvas id="chartIpsa"></canvas>
+    </div>
+
+    <!-- COLOMBIA -->
+    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 h-72">
+        <h3 class="text-sm font-semibold text-white mb-2">Colombia (EWC)</h3>
+        <canvas id="chartColombia"></canvas>
+    </div>
+
+    <!-- PERÚ -->
+    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 h-72">
+        <h3 class="text-sm font-semibold text-white mb-2">Perú (EPU)</h3>
+        <canvas id="chartPeru"></canvas>
+    </div>
+
 </div>
 
+<footer class="mt-10 text-center text-sm text-slate-600 border-t border-slate-800 pt-4">
+    Plataforma NUAM – Dashboard Consolidado.
+</footer>
+
+<!-- =========================
+     CHART.JS
+========================= -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-const ctx = document.getElementById('graficoMercados').getContext('2d');
+function crearGrafico(id, labels, data, color) {
+    const ctx = document.getElementById(id);
+    if (!ctx || !labels || labels.length === 0) return;
 
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: {{ fechas|safe }},
-        datasets: [
-            {
-                label: 'Santiago (IPSA)',
-                data: {{ hist_ipsa|safe }},
-                borderColor: '#22D3EE',
-                borderWidth: 2,
-                fill: false,
-                tension: 0.3
-            },
-            {
-                label: 'Colombia (EWC)',
-                data: {{ hist_ewc|safe }},
-                borderColor: '#4ade80',
-                borderWidth: 2,
-                fill: false,
-                tension: 0.3
-            },
-            {
-                label: 'Perú (EPU)',
-                data: {{ hist_epu|safe }},
-                borderColor: '#60a5fa',
-                borderWidth: 2,
-                fill: false,
-                tension: 0.3
-            },
-        ]
-    },
-    options: {
-        responsive: true,
-        plugins: {
-            legend: { labels: { color: '#E2E8F0' } }
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                borderColor: color,
+                backgroundColor: 'transparent',
+                tension: 0.3,
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
         },
-        scales: {
-            x: { ticks: { color: '#94A3B8' } },
-            y: { ticks: { color: '#94A3B8' } }
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#94A3B8' },
+                    grid: { color: '#1E293B' }
+                },
+                y: {
+                    ticks: { color: '#94A3B8' },
+                    grid: { color: '#1E293B' }
+                }
+            }
         }
-    }
-});
+    });
+}
+
+// === Inicialización ===
+crearGrafico(
+    "chartIpsa",
+    {{ fechas_chile|safe }},
+    {{ hist_chile|safe }},
+    "#22D3EE"
+);
+
+crearGrafico(
+    "chartColombia",
+    {{ fechas_col|safe }},
+    {{ hist_col|safe }},
+    "#4ADE80"
+);
+
+crearGrafico(
+    "chartPeru",
+    {{ fechas_per|safe }},
+    {{ hist_per|safe }},
+    "#60A5FA"
+);
 </script>
 
-<footer class="mt-10 text-center text-sm text-slate-600 border-t border-slate-800 pt-4">
-    Plataforma NUAM - Dashboard.
-</footer>
-
 {% endblock %}
+{% endwith %}
