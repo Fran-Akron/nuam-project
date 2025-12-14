@@ -14,38 +14,39 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0F172A;
-            color: #E2E8F0;
-            transition: all 0.3s ease;
+            background-color: #FFFFFF;
+            color: #0F172A;
         }
 
         .sidebar {
             width: 280px;
-            background-color: #1E293B;
+            background-color: #FFFFFF;
         }
 
         .nav-link {
             transition: background-color 0.2s, color 0.2s;
             border-left: 4px solid transparent;
-            color: #CBD5E1;
+            color: #475569;
         }
 
         .nav-link:hover {
-            background-color: #334155;
+            background-color: #FFF7ED;
+            color: #EA580C;
         }
 
         .active-link {
-            background-color: #0E7490;
-            color: white !important;
-            border-left: 4px solid #A5F3FC;
+            background-color: #FFF7ED;
+            color: #EA580C !important;
+            border-left: 4px solid #F97316;
+            font-weight: 600;
         }
 
         .accent-bg {
-            background-color: #22D3EE;
+            background-color: #F97316;
         }
 
         .accent-text {
-            color: #22D3EE;
+            color: #F97316;
         }
     </style>
 </head>
@@ -53,26 +54,24 @@
 <body class="m-0 p-0">
 
     <!-- BARRA SUPERIOR -->
-    <header class="h-16 flex items-center justify-between px-6 bg-slate-900 shadow-lg border-b border-slate-700 flex-shrink-0">
-        <div class="text-2xl font-extrabold text-white">NUAM <span class="accent-text">Finance</span></div>
+    <header class="h-16 flex items-center justify-between px-6 bg-white shadow-sm border-b border-slate-200">
+        <div class="text-2xl font-extrabold text-slate-900">
+            NUAM <span class="accent-text">Finance</span>
+        </div>
 
         <div class="flex items-center space-x-4">
-            <div class="flex items-center space-x-2 border-l border-slate-700 pl-4">
-                <div class="w-8 h-8 rounded-full accent-bg flex items-center justify-center text-slate-900 font-semibold text-sm">
-                    A
+            <div class="flex items-center space-x-2 border-l border-slate-200 pl-4">
+                <div class="w-8 h-8 rounded-full accent-bg flex items-center justify-center text-white font-semibold text-sm">
+                    {{ user.username|first|upper }}
                 </div>
-                <div class="hidden sm:block text-sm text-slate-300">Admin. Analista</div>
+                <div class="hidden sm:block text-sm text-slate-600">
+                    {{ user.username }}
+                </div>
 
-                <a href="/logout" 
-                   class="text-slate-400 hover:text-red-500 transition duration-200 ml-2 p-1 rounded-md" 
+                <a href="{% url 'logout' %}"
+                   class="text-slate-400 hover:text-red-500 transition ml-2 p-1 rounded-md"
                    title="Cerrar Sesión">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                         viewBox="0 0 24 24" fill="none" stroke="currentColor" 
-                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                         <polyline points="16 17 21 12 16 7"/>
-                         <line x1="21" x2="9" y1="12" y2="12"/>
-                    </svg>
+                    ⎋
                 </a>
             </div>
         </div>
@@ -82,59 +81,45 @@
     <main class="flex flex-1 overflow-hidden">
 
         <!-- SIDEBAR -->
-        <nav class="sidebar flex-shrink-0 h-screen border-r border-slate-700 flex flex-col hidden lg:flex">
+        <nav class="sidebar flex-shrink-0 h-screen border-r border-slate-200 hidden lg:flex flex-col">
 
-            <div class="p-4 text-xs font-semibold uppercase text-slate-500 tracking-wider">
+            <div class="p-4 text-xs font-semibold uppercase text-slate-400 tracking-wider">
                 Menú Principal
             </div>
 
             <div class="sidebar-nav flex-1 space-y-1 p-2">
 
                 <!-- DASHBOARD -->
-                <a href="{% url 'dashboard' %}" 
+                <a href="{% url 'dashboard' %}"
                    class="nav-link flex items-center p-3 rounded-lg text-sm {% if active_page == 'dashboard' %}active-link{% endif %}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" class="mr-3">
-                        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                        <polyline points="9 22 9 12 15 12 15 22"/>
-                    </svg>
                     Inicio (Dashboard)
                 </a>
 
                 <!-- CONSULTAS -->
-                <a href="{% url 'consultas' %}" 
+                <a href="{% url 'consultas' %}"
                    class="nav-link flex items-center p-3 rounded-lg text-sm {% if active_page == 'consultas' %}active-link{% endif %}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                        stroke-linecap="round" stroke-linejoin="round" class="mr-3">
-                        <circle cx="11" cy="11" r="8"/>
-                        <line x1="21" x2="16.65" y1="21" y2="16.65"/>
-                    </svg>
                     Consultas Consolidadas
                 </a>
 
                 <!-- REPORTES -->
-                <a href="{% url 'reportes' %}" 
+                <a href="{% url 'reportes' %}"
                    class="nav-link flex items-center p-3 rounded-lg text-sm {% if active_page == 'reportes' %}active-link{% endif %}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
-                         viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                         stroke-linecap="round" stroke-linejoin="round" class="mr-3">
-                         <path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/>
-                    </svg>
                     Reportes y Análisis
                 </a>
 
-                <!-- ADMIN -->
-                <a href="#" class="nav-link flex items-center p-3 rounded-lg text-sm">
+                <!-- ADMINISTRACIÓN (SOLO SUPERADMIN) -->
+                {% if user.is_superuser %}
+                <a href="/admin/"
+                   class="nav-link flex items-center p-3 rounded-lg text-sm">
                     Administración
                 </a>
+                {% endif %}
 
             </div>
         </nav>
 
         <!-- CONTENIDO -->
-        <div class="flex-1 p-6 overflow-y-auto">
+        <div class="flex-1 p-6 overflow-y-auto bg-white">
             {% block content %}
             {% endblock %}
         </div>

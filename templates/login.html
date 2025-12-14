@@ -14,23 +14,25 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0F172A;
-            color: #E2E8F0;
-            transition: all 0.3s ease;
+            background-color: #FFFFFF;
+            color: #1E293B;
         }
-        .accent-text { color: #22D3EE; }
+
+        .accent-text {
+            color: #F97316;
+        }
     </style>
 </head>
 
 <body class="h-screen w-screen flex items-center justify-center">
 
-    <div class="w-full max-w-md bg-slate-800 p-8 rounded-xl shadow-2xl border border-slate-700">
+    <div class="w-full max-w-md bg-white p-8 rounded-xl shadow-xl border border-slate-200">
 
-        <h1 class="text-4xl font-extrabold text-white text-center mb-6">
+        <h1 class="text-4xl font-extrabold text-slate-900 text-center mb-6">
             NUAM <span class="accent-text">Finance</span>
         </h1>
 
-        <p class="text-slate-400 text-center mb-8">
+        <p class="text-slate-600 text-center mb-8">
             Acceso a los mercados consolidados de Santiago, Colombia y Lima.
         </p>
 
@@ -39,34 +41,39 @@
             {% csrf_token %}
 
             <div class="mb-4">
-                <label for="username" class="block text-sm font-medium text-slate-300 mb-1">Usuario</label>
+                <label for="username" class="block text-sm font-medium text-slate-700 mb-1">
+                    Usuario
+                </label>
                 <input type="text" id="username" name="username" required
-                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    class="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-900
+                           focus:outline-none focus:ring-2 focus:ring-orange-500"
                     placeholder="usuario123">
             </div>
 
             <div class="mb-6">
-                <label for="password" class="block text-sm font-medium text-slate-300 mb-1">Contraseña</label>
+                <label for="password" class="block text-sm font-medium text-slate-700 mb-1">
+                    Contraseña
+                </label>
                 <input type="password" id="password" name="password" required
-                    class="w-full px-4 py-2 bg-slate-700 border border-slate-600 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+                    class="w-full px-4 py-2 bg-white border border-slate-300 rounded-lg text-slate-900
+                           focus:outline-none focus:ring-2 focus:ring-orange-500"
                     placeholder="********">
             </div>
 
             <button type="submit"
-                class="block w-full bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 rounded-xl transition duration-300 shadow-lg shadow-cyan-900/50">
+                class="block w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 rounded-xl
+                       transition duration-300 shadow-md">
                 Iniciar Sesión
             </button>
         </form>
 
-        <!-- ENLACE "OLVIDÉ MI CONTRASEÑA" -->
-        <p class="mt-6 text-center text-sm text-slate-400">
-            <a href="#" class="hover:text-cyan-400 transition duration-200">¿Olvidaste tu contraseña?</a>
+        <p class="mt-6 text-center text-sm text-slate-500">
+            <a href="#" class="hover:text-orange-500 transition">¿Olvidaste tu contraseña?</a>
         </p>
 
-        <!-- ENLACE "CREAR CUENTA" -->
-        <p class="mt-4 text-center text-sm text-slate-400">
+        <p class="mt-4 text-center text-sm text-slate-500">
             ¿No tienes cuenta?
-            <a href="{% url 'crear_cuenta' %}" class="text-cyan-400 font-semibold hover:text-cyan-300">
+            <a href="{% url 'crear_cuenta' %}" class="text-orange-500 font-semibold hover:text-orange-600">
                 Crear cuenta
             </a>
         </p>

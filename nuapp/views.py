@@ -289,3 +289,16 @@ def preview_dashboard_admin(request):
 
 def preview_dashboard_user(request):
     return render(request, "dashboard_user.html")
+
+
+from django.utils import timezone
+
+@login_required
+def admin_view(request):
+    usuarios = User.objects.all().order_by("username")
+    contexto = {
+        "usuarios": usuarios,
+        "total_usuarios": usuarios.count(),
+        "updated_at": timezone.localtime().strftime("%d-%m-%Y %H:%M"),
+    }
+    return render(request, "admin.html", contexto)

@@ -4,10 +4,14 @@
 
 {% block content %}
 
-<h2 class="text-3xl font-bold mb-2 text-white">Dashboard Consolidado NUAM</h2>
-<p class="text-slate-400 mb-1">
+<h2 class="text-3xl font-bold mb-2 text-slate-900">
+    Dashboard Consolidado NUAM
+</h2>
+
+<p class="text-slate-600 mb-1">
     Visualización resumida del comportamiento semanal de los principales mercados.
 </p>
+
 <p class="text-slate-500 text-sm mb-6">
     Datos actualizados al: {{ updated_at }}
 </p>
@@ -18,51 +22,51 @@
 <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
 
     <!-- CHILE -->
-    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
-        <div class="text-sm text-slate-400 uppercase">Chile (IPSA)</div>
-        <div class="text-3xl font-extrabold text-white mt-1">
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-sm text-slate-500 uppercase">Chile (IPSA)</div>
+        <div class="text-3xl font-extrabold text-slate-900 mt-1">
             {{ valor_chile|default:"Sin datos" }}
             {% if trend_chile == "up" %}
-                <span class="text-green-400 text-xl">▲</span>
+                <span class="text-green-600 text-xl">▲</span>
             {% elif trend_chile == "down" %}
-                <span class="text-red-400 text-xl">▼</span>
+                <span class="text-red-600 text-xl">▼</span>
             {% endif %}
         </div>
         <div class="text-xs text-slate-500">Variación diaria</div>
     </div>
 
     <!-- COLOMBIA -->
-    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
-        <div class="text-sm text-slate-400 uppercase">Colombia (EWC)</div>
-        <div class="text-3xl font-extrabold text-white mt-1">
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-sm text-slate-500 uppercase">Colombia (EWC)</div>
+        <div class="text-3xl font-extrabold text-slate-900 mt-1">
             {{ valor_colombia }}
             {% if trend_colombia == "up" %}
-                <span class="text-green-400 text-xl">▲</span>
+                <span class="text-green-600 text-xl">▲</span>
             {% elif trend_colombia == "down" %}
-                <span class="text-red-400 text-xl">▼</span>
+                <span class="text-red-600 text-xl">▼</span>
             {% endif %}
         </div>
         <div class="text-xs text-slate-500">Variación diaria</div>
     </div>
 
     <!-- PERÚ -->
-    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
-        <div class="text-sm text-slate-400 uppercase">Perú (EPU)</div>
-        <div class="text-3xl font-extrabold text-white mt-1">
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-sm text-slate-500 uppercase">Perú (EPU)</div>
+        <div class="text-3xl font-extrabold text-slate-900 mt-1">
             {{ valor_peru }}
             {% if trend_peru == "up" %}
-                <span class="text-green-400 text-xl">▲</span>
+                <span class="text-green-600 text-xl">▲</span>
             {% elif trend_peru == "down" %}
-                <span class="text-red-400 text-xl">▼</span>
+                <span class="text-red-600 text-xl">▼</span>
             {% endif %}
         </div>
         <div class="text-xs text-slate-500">Variación diaria</div>
     </div>
 
     <!-- USD -->
-    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700">
-        <div class="text-sm text-slate-400 uppercase">USD / CLP</div>
-        <div class="text-3xl font-extrabold text-white mt-1">
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+        <div class="text-sm text-slate-500 uppercase">USD / CLP</div>
+        <div class="text-3xl font-extrabold text-slate-900 mt-1">
             {{ usd_clp }}
         </div>
         <div class="text-xs text-slate-500">Tipo de cambio</div>
@@ -71,31 +75,28 @@
 </div>
 
 <!-- =========================
-     GRÁFICOS (3 INDEPENDIENTES)
+     GRÁFICOS
 ========================= -->
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
 
-    <!-- IPSA -->
-    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 h-72">
-        <h3 class="text-sm font-semibold text-white mb-2">Santiago (IPSA)</h3>
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-72">
+        <h3 class="text-sm font-semibold text-slate-700 mb-2">Santiago (IPSA)</h3>
         <canvas id="chartIpsa"></canvas>
     </div>
 
-    <!-- COLOMBIA -->
-    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 h-72">
-        <h3 class="text-sm font-semibold text-white mb-2">Colombia (EWC)</h3>
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-72">
+        <h3 class="text-sm font-semibold text-slate-700 mb-2">Colombia (EWC)</h3>
         <canvas id="chartColombia"></canvas>
     </div>
 
-    <!-- PERÚ -->
-    <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 h-72">
-        <h3 class="text-sm font-semibold text-white mb-2">Perú (EPU)</h3>
+    <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm h-72">
+        <h3 class="text-sm font-semibold text-slate-700 mb-2">Perú (EPU)</h3>
         <canvas id="chartPeru"></canvas>
     </div>
 
 </div>
 
-<footer class="mt-10 text-center text-sm text-slate-600 border-t border-slate-800 pt-4">
+<footer class="mt-10 text-center text-sm text-slate-500 border-t border-slate-200 pt-4">
     Plataforma NUAM – Dashboard Consolidado.
 </footer>
 
@@ -105,7 +106,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-function crearGrafico(id, labels, data, color) {
+function crearGrafico(id, labels, data) {
     const ctx = document.getElementById(id);
     if (!ctx || !labels || labels.length === 0) return;
 
@@ -115,7 +116,7 @@ function crearGrafico(id, labels, data, color) {
             labels: labels,
             datasets: [{
                 data: data,
-                borderColor: color,
+                borderColor: '#F97316',
                 backgroundColor: 'transparent',
                 tension: 0.3,
                 pointRadius: 4,
@@ -130,39 +131,21 @@ function crearGrafico(id, labels, data, color) {
             },
             scales: {
                 x: {
-                    ticks: { color: '#94A3B8' },
-                    grid: { color: '#1E293B' }
+                    ticks: { color: '#64748B' },
+                    grid: { color: '#E5E7EB' }
                 },
                 y: {
-                    ticks: { color: '#94A3B8' },
-                    grid: { color: '#1E293B' }
+                    ticks: { color: '#64748B' },
+                    grid: { color: '#E5E7EB' }
                 }
             }
         }
     });
 }
 
-// === Inicialización ===
-crearGrafico(
-    "chartIpsa",
-    {{ fechas_chile|safe }},
-    {{ hist_chile|safe }},
-    "#22D3EE"
-);
-
-crearGrafico(
-    "chartColombia",
-    {{ fechas_col|safe }},
-    {{ hist_col|safe }},
-    "#4ADE80"
-);
-
-crearGrafico(
-    "chartPeru",
-    {{ fechas_per|safe }},
-    {{ hist_per|safe }},
-    "#60A5FA"
-);
+crearGrafico("chartIpsa", {{ fechas_chile|safe }}, {{ hist_chile|safe }});
+crearGrafico("chartColombia", {{ fechas_col|safe }}, {{ hist_col|safe }});
+crearGrafico("chartPeru", {{ fechas_per|safe }}, {{ hist_per|safe }});
 </script>
 
 {% endblock %}
