@@ -55,8 +55,10 @@ ROOT_URLCONF = 'nuam_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [ BASE_DIR / 'templates' ],
-
+        'DIRS': [
+            BASE_DIR / 'templates',
+            BASE_DIR / 'nuapp' / 'templates' / 'nuapp',
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -67,6 +69,7 @@ TEMPLATES = [
         },
     },
 ]
+
 
 WSGI_APPLICATION = 'nuam_project.wsgi.application'
 

@@ -1,0 +1,148 @@
+{% extends "nuapp/base.html" %}
+
+{% block content %}
+
+<!-- Encabezado -->
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+  <div>
+    <h1 class="text-2xl font-extrabold text-slate-900">Calificaciones</h1>
+    <p class="text-sm text-slate-500 mt-1">
+      Gestión de calificaciones tributarias asociadas a instrumentos financieros.
+    </p>
+  </div>
+
+  <!-- Acciones -->
+  <div class="flex items-center gap-2">
+    <button
+      type="button"
+      class="px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:opacity-90 transition"
+      title="Registrar nueva calificación (se conectará luego)">
+      + Nueva Calificación
+    </button>
+
+    <button
+      type="button"
+      class="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition"
+      title="Exportar calificaciones a CSV (se conectará luego)">
+      Exportar CSV
+    </button>
+  </div>
+</div>
+
+<!-- Filtros -->
+<div class="bg-white border border-slate-200 rounded-xl shadow-sm p-4 mb-6">
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+        Código
+      </label>
+      <input
+        type="text"
+        placeholder="CAL-001"
+        class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-200"
+        disabled
+      />
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+        Instrumento
+      </label>
+      <select
+        class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-200"
+        disabled>
+        <option>Todos</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+        Tipo
+      </label>
+      <select
+        class="w-full px-4 py-2 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-orange-200"
+        disabled>
+        <option>Todas</option>
+        <option>Tributaria</option>
+        <option>Financiera</option>
+      </select>
+    </div>
+
+    <div class="flex items-end gap-2">
+      <button
+        type="button"
+        class="px-4 py-2 rounded-lg bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition"
+        disabled>
+        Aplicar
+      </button>
+      <button
+        type="button"
+        class="px-4 py-2 rounded-lg bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200 transition"
+        disabled>
+        Limpiar
+      </button>
+    </div>
+
+  </div>
+
+  <p class="text-xs text-slate-400 mt-3">
+    * Los filtros se habilitarán cuando la vista esté conectada a la base de datos.
+  </p>
+</div>
+
+<!-- Tabla de Calificaciones -->
+<div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+  <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+    <h2 class="text-sm font-bold text-slate-800">Listado de Calificaciones</h2>
+    <span class="text-xs text-slate-500">
+      Total: <span class="font-semibold text-slate-700">0</span>
+    </span>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50 border-b border-slate-200">
+        <tr class="text-left text-slate-600">
+          <th class="px-4 py-3 font-semibold">Código</th>
+          <th class="px-4 py-3 font-semibold">Instrumento</th>
+          <th class="px-4 py-3 font-semibold">Monto</th>
+          <th class="px-4 py-3 font-semibold">Fecha</th>
+          <th class="px-4 py-3 font-semibold">Tipo</th>
+          <th class="px-4 py-3 font-semibold">Estado</th>
+          <th class="px-4 py-3 font-semibold text-right">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y divide-slate-200">
+        <!-- Fila placeholder -->
+        <tr class="hover:bg-slate-50">
+          <td class="px-4 py-3 font-semibold text-slate-700">---</td>
+          <td class="px-4 py-3 text-slate-700">Sin registros aún</td>
+          <td class="px-4 py-3 text-slate-700">$0</td>
+          <td class="px-4 py-3 text-slate-700">--/--/----</td>
+          <td class="px-4 py-3 text-slate-700">---</td>
+          <td class="px-4 py-3">
+            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
+              Pendiente
+            </span>
+          </td>
+          <td class="px-4 py-3 text-right">
+            <button
+              type="button"
+              class="px-3 py-1.5 rounded-lg border border-slate-200 text-slate-600 text-xs font-semibold hover:bg-slate-50 transition"
+              disabled>
+              Editar
+            </button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="px-4 py-3 bg-white border-t border-slate-200 text-xs text-slate-500">
+    Consejo: las calificaciones se pueden registrar manualmente o mediante carga masiva.
+  </div>
+</div>
+
+{% endblock %}

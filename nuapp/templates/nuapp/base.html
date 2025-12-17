@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plataforma NUAM</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #FFFFFF;
+            color: #0F172A;
+        }
+        .sidebar {
+            width: 280px;
+            background-color: #FFFFFF;
+        }
+        .accent-bg {
+            background-color: #F97316;
+        }
+        .accent-text {
+            color: #F97316;
+        }
+    </style>
+</head>
+
+<body class="m-0 p-0">
+
+<!-- BARRA SUPERIOR -->
+<header class="h-16 flex items-center justify-between px-6 bg-white shadow-sm border-b border-slate-200">
+    <div class="text-2xl font-extrabold text-slate-900">
+        NUAM <span class="accent-text">Finance</span>
+    </div>
+
+    <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2 border-l border-slate-200 pl-4">
+            <div class="w-8 h-8 rounded-full accent-bg flex items-center justify-center text-white font-semibold text-sm">
+                {{ user.username|first|upper }}
+            </div>
+            <div class="hidden sm:block text-sm text-slate-600">
+                {{ user.username }}
+            </div>
+
+            <a href="{% url 'logout' %}"
+               class="text-slate-400 hover:text-red-500 transition ml-2 p-1 rounded-md"
+               title="Cerrar Sesión">
+                ⎋
+            </a>
+        </div>
+    </div>
+</header>
+
+<!-- LAYOUT -->
+<main class="flex">
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar border-r border-slate-200 min-h-screen">
+
+        <div class="p-4 text-xs font-semibold uppercase text-slate-400 tracking-wider">
+            Menú Principal
+        </div>
+
+        <div class="space-y-1 p-2">
+
+            <a href="{% url 'dashboard' %}"
+               class="block p-3 rounded-lg text-sm hover:bg-orange-50 hover:text-orange-600
+               {% if active_page == 'dashboard' %}font-semibold text-orange-600{% else %}text-slate-600{% endif %}">
+                Inicio (Dashboard)
+            </a>
+
+            <a href="{% url 'instrumentos' %}"
+               class="block p-3 rounded-lg text-sm hover:bg-orange-50 hover:text-orange-600
+               {% if active_page == 'instrumentos' %}font-semibold text-orange-600{% else %}text-slate-600{% endif %}">
+                Instrumentos
+            </a>
+
+            <a href="{% url 'calificaciones' %}"
+               class="block p-3 rounded-lg text-sm hover:bg-orange-50 hover:text-orange-600
+               {% if active_page == 'calificaciones' %}font-semibold text-orange-600{% else %}text-slate-600{% endif %}">
+                Calificaciones
+            </a>
+
+            <a href="{% url 'carga_masiva' %}"
+               class="block p-3 rounded-lg text-sm hover:bg-orange-50 hover:text-orange-600
+               {% if active_page == 'carga_masiva' %}font-semibold text-orange-600{% else %}text-slate-600{% endif %}">
+                Carga Masiva
+            </a>
+
+            {% if user.is_superuser %}
+            <div class="mt-4 pt-4 border-t text-xs uppercase text-slate-400 px-2">
+                Administración
+            </div>
+
+            <!-- 🔧 CORREGIDO: usa name='admin' -->
+            <a href="{% url 'admin' %}"
+               class="block p-3 rounded-lg text-sm hover:bg-orange-50 hover:text-orange-600
+               {% if active_page == 'admin' %}font-semibold text-orange-600{% else %}text-slate-600{% endif %}">
+                Usuarios y Roles
+            </a>
+            {% endif %}
+
+        </div>
+    </nav>
+
+    <!-- CONTENIDO -->
+    <section class="flex-1 p-6 bg-white overflow-y-auto">
+        {% block content %}
+        {% endblock %}
+    </section>
+
+</main>
+
+</body>
+</html>

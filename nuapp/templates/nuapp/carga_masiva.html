@@ -1,0 +1,41 @@
+{% extends "nuapp/base.html" %}
+{% block content %}
+
+<h1 class="text-2xl font-extrabold mb-4">Carga Masiva de Datos</h1>
+
+<form method="POST" enctype="multipart/form-data" class="bg-white border rounded-xl p-6 max-w-3xl">
+  {% csrf_token %}
+
+  <!-- Tipo de carga -->
+  <div class="mb-4">
+    <label class="block text-xs font-semibold mb-2">Tipo de Carga</label>
+    <select name="tipo" class="w-full border rounded-lg px-4 py-2" required>
+      <option value="">Seleccionar…</option>
+      <option value="instrumentos">Instrumentos</option>
+      <option value="calificaciones">Calificaciones</option>
+    </select>
+  </div>
+
+  <!-- Archivo -->
+  <div class="mb-4">
+    <label class="block text-xs font-semibold mb-2">Archivo CSV</label>
+    <input type="file" name="archivo" accept=".csv" required>
+  </div>
+
+  <!-- Botón -->
+  <button
+    type="submit"
+    class="px-6 py-2 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600">
+    Procesar Archivo
+  </button>
+
+  {% if mensaje %}
+    <p class="mt-4 text-sm text-green-600">{{ mensaje }}</p>
+  {% endif %}
+
+  {% if error %}
+    <p class="mt-4 text-sm text-red-600">{{ error }}</p>
+  {% endif %}
+</form>
+
+{% endblock %}
