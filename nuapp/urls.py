@@ -11,8 +11,18 @@ urlpatterns = [
 
     # CORE
     path("dashboard/", views.dashboard_view, name="dashboard"),
+
+    # INSTRUMENTOS
     path("instrumentos/", views.instrumentos_view, name="instrumentos"),
+    path("instrumentos/nuevo/", views.instrumento_form_view, name="instrumento_nuevo"),
+    path("instrumentos/editar/<int:instrumento_id>/", views.instrumento_form_view, name="instrumento_editar"),
+    path("instrumentos/ver/<int:instrumento_id>/", views.instrumento_detalle_view, name="instrumento_ver"),
+    path("instrumentos/eliminar/<int:instrumento_id>/", views.instrumento_eliminar_view, name="instrumento_eliminar"),
+
+    # CALIFICACIONES
     path("calificaciones/", views.calificaciones_view, name="calificaciones"),
+
+    # CARGA MASIVA
     path("carga-masiva/", views.carga_masiva_view, name="carga_masiva"),
 
     # ADMIN

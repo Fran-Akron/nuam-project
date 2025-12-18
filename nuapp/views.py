@@ -1,10 +1,13 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils import timezone
 import csv
 from io import TextIOWrapper
+
+from .models import Instrumento, Calificacion
+
 
 # =========================================================
 #   HOME / REDIRECT
@@ -86,29 +89,126 @@ def dashboard_view(request):
 
 
 # =========================================================
-#   INSTRUMENTOS
+#   INSTRUMENTOS (LISTADO)
 # =========================================================
 @login_required
 def instrumentos_view(request):
+    instrumentos = Instrumento.objects.all().order_by("codigo")
+
+    q = request.GET.get("q", "")
+    tipo = request.GET.get("tipo", "")
+    mercado = request.GET.get("mercado", "")
+    estado = request.GET.get("estado", "")
+
+    if q:
+        instrumentos = instrumentos.filter(
+            codigo__icontains=q
+        ) | instrumentos.filter(
+            nombre__icontains=q
+        )
+
+    if tipo:
+        instrumentos = instrumentos.filter(tipo=tipo)
+
+    if mercado:
+        instrumentos = instrumentos.filter(mercado=mercado)
+
+    if estado:
+        instrumentos = instrumentos.filter(estado=estado)
+
     contexto = {
         "active_page": "instrumentos",
+        "instrumentos": instrumentos,
     }
+
     return render(request, "nuapp/instrumentos.html", contexto)
 
 
 # =========================================================
-#   CALIFICACIONES
+#   INSTRUMENTOS (CREAR / EDITAR)
+# =========================================================
+@login_required
+def instrumento_form_view(request, instrumento_id=None):
+    instrumento = None
+
+    if instrumento_id:
+        instrumento = get_object_or_404(Instrumento, id=instrumento_id)
+
+    if request.method == "POST":
+        data = {
+            "codigo": request.POST.get("codigo"),
+            "nombre": request.POST.get("nombre"),
+            "tipo": request.POST.get("tipo"),
+            "mercado": request.POST.get("mercado"),
+            "estado": request.POST.get("estado"),
+            "fecha_emision": request.POST.get("fecha_emision") or None,
+            "fecha_vencimiento": request.POST.get("fecha_vencimiento") or None,
+        }
+
+        if instrumento:
+            for campo, valor in data.items():
+                setattr(instrumento, campo, valor)
+            instrumento.save()
+        else:
+            Instrumento.objects.create(**data)
+
+        return redirect("instrumentos")
+
+    contexto = {
+        "instrumento": instrumento,
+        "active_page": "instrumentos",
+        "tipos": Instrumento.TIPO_CHOICES,
+        "mercados": Instrumento.MERCADO_CHOICES,
+        "estados": Instrumento.ESTADO_CHOICES,
+    }
+
+    return render(request, "nuapp/instrumento_form.html", contexto)
+
+
+# =========================================================
+#   INSTRUMENTOS (VER DETALLE)
+# =========================================================
+@login_required
+def instrumento_detalle_view(request, instrumento_id):
+    instrumento = get_object_or_404(Instrumento, id=instrumento_id)
+
+    contexto = {
+        "active_page": "instrumentos",
+        "instrumento": instrumento,
+        "calificaciones": instrumento.calificaciones.all(),
+    }
+
+    return render(request, "nuapp/instrumento_detalle.html", contexto)
+
+
+# =========================================================
+#   INSTRUMENTOS (ELIMINAR)
+# =========================================================
+@login_required
+def instrumento_eliminar_view(request, instrumento_id):
+    if request.method == "POST":
+        instrumento = get_object_or_404(Instrumento, id=instrumento_id)
+        instrumento.delete()
+    return redirect("instrumentos")
+
+
+# =========================================================
+#   CALIFICACIONES (LISTADO REAL)
 # =========================================================
 @login_required
 def calificaciones_view(request):
+    calificaciones = Calificacion.objects.select_related("instrumento").all()
+
     contexto = {
         "active_page": "calificaciones",
+        "calificaciones": calificaciones,
     }
+
     return render(request, "nuapp/calificaciones.html", contexto)
 
 
 # =========================================================
-#   CARGA MASIVA CSV
+#   CARGA MASIVA CSV (BASE)
 # =========================================================
 @login_required
 def carga_masiva_view(request):
@@ -130,8 +230,8 @@ def carga_masiva_view(request):
             filas = list(reader)
 
             contexto["mensaje"] = (
-                f"Archivo CSV procesado correctamente. "
-                f"Tipo: {tipo}. Registros leídos: {len(filas)}"
+                f"Archivo CSV leído correctamente. "
+                f"Tipo: {tipo}. Filas: {len(filas)}"
             )
 
         except Exception as e:

@@ -1,0 +1,95 @@
+{% extends "nuapp/base.html" %}
+{% block content %}
+
+<div class="max-w-4xl mx-auto">
+
+  <!-- HEADER -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h1 class="text-2xl font-extrabold text-slate-900">
+        Detalle <span class="text-orange-500">Instrumento</span>
+      </h1>
+      <p class="text-sm text-slate-500 mt-1">
+        Información completa del instrumento financiero.
+      </p>
+    </div>
+
+    <a href="{% url 'instrumentos' %}"
+       class="rounded-xl px-4 py-2 text-sm font-semibold border hover:bg-slate-50">
+      ← Volver
+    </a>
+  </div>
+
+  <!-- CARD -->
+  <div class="bg-white border border-slate-200 rounded-2xl shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+    <div>
+      <p class="text-xs text-slate-500">Código</p>
+      <p class="font-semibold text-slate-900">{{ instrumento.codigo }}</p>
+    </div>
+
+    <div>
+      <p class="text-xs text-slate-500">Nombre</p>
+      <p class="font-semibold text-slate-900">{{ instrumento.nombre }}</p>
+    </div>
+
+    <div>
+      <p class="text-xs text-slate-500">Tipo</p>
+      <p class="font-semibold text-slate-900">{{ instrumento.get_tipo_display }}</p>
+    </div>
+
+    <div>
+      <p class="text-xs text-slate-500">Mercado</p>
+      <p class="font-semibold text-slate-900">{{ instrumento.get_mercado_display }}</p>
+    </div>
+
+    <div>
+      <p class="text-xs text-slate-500">Estado</p>
+      {% if instrumento.estado == "ACTIVO" %}
+        <span class="inline-block px-3 py-1 rounded-full text-xs bg-green-100 text-green-700">
+          Activo
+        </span>
+      {% else %}
+        <span class="inline-block px-3 py-1 rounded-full text-xs bg-red-100 text-red-700">
+          Inactivo
+        </span>
+      {% endif %}
+    </div>
+
+    <div>
+      <p class="text-xs text-slate-500">Fecha emisión</p>
+      <p class="font-semibold text-slate-900">
+        {{ instrumento.fecha_emision|default:"—" }}
+      </p>
+    </div>
+
+    <div>
+      <p class="text-xs text-slate-500">Fecha vencimiento</p>
+      <p class="font-semibold text-slate-900">
+        {{ instrumento.fecha_vencimiento|default:"—" }}
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ACCIONES -->
+  <div class="flex gap-3 mt-6">
+    <a href="{% url 'instrumento_editar' instrumento.id %}"
+       class="rounded-xl px-4 py-2 text-sm font-semibold bg-orange-500 text-white hover:bg-orange-600">
+      ✏️ Editar
+    </a>
+
+    <form action="{% url 'instrumento_eliminar' instrumento.id %}"
+          method="post"
+          onsubmit="return confirm('¿Eliminar este instrumento?');">
+      {% csrf_token %}
+      <button type="submit"
+        class="rounded-xl px-4 py-2 text-sm font-semibold border hover:bg-red-50">
+        🗑️ Eliminar
+      </button>
+    </form>
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,7 +1,178 @@
 {% extends "nuapp/base.html" %}
-
 {% block content %}
-<div style="background:yellow;padding:20px;font-weight:bold">
-    CONTENIDO INSTRUMENTOS OK
+
+<div class="max-w-6xl mx-auto">
+
+  <!-- HEADER -->
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-extrabold text-slate-900">
+        Instrumentos <span class="text-orange-500">Financieros</span>
+      </h1>
+      <p class="text-sm text-slate-500 mt-1">
+        Administración de instrumentos y sus atributos principales.
+      </p>
+    </div>
+
+    <!-- BOTÓN NUEVO -->
+    <a href="{% url 'instrumento_nuevo' %}"
+       class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 transition shadow-sm">
+      <span class="text-lg leading-none">＋</span>
+      Nuevo instrumento
+    </a>
+  </div>
+
+  <!-- FILTROS -->
+  <div class="mt-6 bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+    <form method="get" class="grid grid-cols-1 md:grid-cols-12 gap-3">
+
+      <div class="md:col-span-4">
+        <label class="block text-xs font-semibold text-slate-500 mb-1">
+          Código / Nombre
+        </label>
+        <input
+          type="text"
+          name="q"
+          value="{{ request.GET.q|default:'' }}"
+          class="w-full rounded-xl border px-3 py-2 text-sm"
+          placeholder="Ej: ACC-CL-001">
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-xs font-semibold text-slate-500 mb-1">Tipo</label>
+        <select name="tipo" class="w-full rounded-xl border px-3 py-2 text-sm">
+          <option value="">Todos</option>
+          <option value="ACCION" {% if request.GET.tipo == "ACCION" %}selected{% endif %}>Acción</option>
+          <option value="BONO" {% if request.GET.tipo == "BONO" %}selected{% endif %}>Bono</option>
+          <option value="DERIVADO" {% if request.GET.tipo == "DERIVADO" %}selected{% endif %}>Derivado</option>
+          <option value="OTRO" {% if request.GET.tipo == "OTRO" %}selected{% endif %}>Otro</option>
+        </select>
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-xs font-semibold text-slate-500 mb-1">Mercado</label>
+        <select name="mercado" class="w-full rounded-xl border px-3 py-2 text-sm">
+          <option value="">Todos</option>
+          <option value="CL" {% if request.GET.mercado == "CL" %}selected{% endif %}>Chile</option>
+          <option value="PE" {% if request.GET.mercado == "PE" %}selected{% endif %}>Perú</option>
+          <option value="CO" {% if request.GET.mercado == "CO" %}selected{% endif %}>Colombia</option>
+        </select>
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block text-xs font-semibold text-slate-500 mb-1">Estado</label>
+        <select name="estado" class="w-full rounded-xl border px-3 py-2 text-sm">
+          <option value="">Todos</option>
+          <option value="ACTIVO" {% if request.GET.estado == "ACTIVO" %}selected{% endif %}>Activo</option>
+          <option value="INACTIVO" {% if request.GET.estado == "INACTIVO" %}selected{% endif %}>Inactivo</option>
+        </select>
+      </div>
+
+      <div class="md:col-span-2 flex items-end gap-2">
+        <button type="submit"
+          class="w-full rounded-xl px-4 py-2 text-sm font-semibold bg-slate-900 text-white">
+          Filtrar
+        </button>
+        <a href="{% url 'instrumentos' %}"
+          class="rounded-xl px-4 py-2 text-sm border">
+          Limpiar
+        </a>
+      </div>
+
+    </form>
+  </div>
+
+  <!-- TABLA -->
+  <div class="mt-6 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-4 py-3 border-b flex justify-between">
+      <span class="font-semibold text-sm">Listado</span>
+      <span class="text-xs text-slate-500">
+        {{ instrumentos|length }} registro(s)
+      </span>
+    </div>
+
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+        <tr>
+          <th class="px-4 py-3 text-left">Código</th>
+          <th class="px-4 py-3 text-left">Nombre</th>
+          <th class="px-4 py-3 text-center">Tipo</th>
+          <th class="px-4 py-3 text-center">Mercado</th>
+          <th class="px-4 py-3 text-center">Estado</th>
+          <th class="px-4 py-3 text-center">Emisión</th>
+          <th class="px-4 py-3 text-center">Vencimiento</th>
+          <th class="px-4 py-3 text-right">Acciones</th>
+        </tr>
+      </thead>
+
+      <tbody class="divide-y">
+        {% for i in instrumentos %}
+        <tr class="hover:bg-orange-50/30">
+          <td class="px-4 py-3 font-semibold">{{ i.codigo }}</td>
+          <td class="px-4 py-3">{{ i.nombre }}</td>
+          <td class="px-4 py-3 text-center">{{ i.get_tipo_display }}</td>
+          <td class="px-4 py-3 text-center">{{ i.get_mercado_display }}</td>
+
+          <td class="px-4 py-3 text-center">
+            {% if i.estado == "ACTIVO" %}
+              <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
+                Activo
+              </span>
+            {% else %}
+              <span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">
+                Inactivo
+              </span>
+            {% endif %}
+          </td>
+
+          <td class="px-4 py-3 text-center">{{ i.fecha_emision|default:"—" }}</td>
+          <td class="px-4 py-3 text-center">{{ i.fecha_vencimiento|default:"—" }}</td>
+
+          <td class="px-4 py-3 text-right">
+            <div class="flex justify-end gap-3 text-lg">
+<td class="px-4 py-3 text-right">
+  <div class="flex justify-end gap-3">
+
+    <!-- VER -->
+    <a href="{% url 'instrumento_ver' i.id %}"
+       title="Ver"
+       class="inline-flex items-center justify-center w-9 h-9 rounded-xl border hover:bg-slate-50">
+      👁️
+    </a>
+
+    <!-- EDITAR -->
+    <a href="{% url 'instrumento_editar' i.id %}"
+       title="Editar"
+       class="inline-flex items-center justify-center w-9 h-9 rounded-xl border hover:bg-orange-50">
+      ✏️
+    </a>
+
+    <!-- ELIMINAR -->
+    <form action="{% url 'instrumento_eliminar' i.id %}"
+          method="post"
+          onsubmit="return confirm('¿Eliminar este instrumento?');">
+      {% csrf_token %}
+      <button type="submit"
+        class="inline-flex items-center justify-center w-9 h-9 rounded-xl border hover:bg-red-50">
+        🗑️
+      </button>
+    </form>
+
+  </div>
+</td>
+
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="8" class="text-center py-10 text-slate-500">
+            No hay instrumentos registrados
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
 </div>
+
 {% endblock %}
