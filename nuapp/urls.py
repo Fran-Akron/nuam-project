@@ -21,6 +21,13 @@ urlpatterns = [
 
     # CALIFICACIONES
     path("calificaciones/", views.calificaciones_view, name="calificaciones"),
+    path("calificaciones/nueva/", views.calificacion_form_view, name="calificacion_nueva"),
+    path(
+    "calificaciones/eliminar/<int:calificacion_id>/",
+    views.calificacion_eliminar_view,
+    name="calificacion_eliminar"
+),
+
 
     # CARGA MASIVA
     path("carga-masiva/", views.carga_masiva_view, name="carga_masiva"),

@@ -197,7 +197,11 @@ def instrumento_eliminar_view(request, instrumento_id):
 # =========================================================
 @login_required
 def calificaciones_view(request):
-    calificaciones = Calificacion.objects.select_related("instrumento").all()
+    calificaciones = (
+        Calificacion.objects
+        .select_related("instrumento")
+        .order_by("-fecha")
+    )
 
     contexto = {
         "active_page": "calificaciones",
@@ -205,6 +209,40 @@ def calificaciones_view(request):
     }
 
     return render(request, "nuapp/calificaciones.html", contexto)
+
+@login_required
+def calificacion_form_view(request):
+    instrumentos = Instrumento.objects.all().order_by("codigo")
+
+    if request.method == "POST":
+        instrumento_id = request.POST.get("instrumento")
+        tipo = request.POST.get("tipo")
+        monto = request.POST.get("monto") or None
+        fecha = request.POST.get("fecha")
+        estado = request.POST.get("estado")
+
+        instrumento = get_object_or_404(Instrumento, id=instrumento_id)
+
+        Calificacion.objects.create(
+            instrumento=instrumento,
+            tipo=tipo,
+            monto=monto,
+            fecha=fecha,
+            estado=estado
+        )
+
+        return redirect("calificaciones")
+
+    contexto = {
+        "active_page": "calificaciones",
+        "instrumentos": instrumentos,
+        "tipos": Calificacion.TIPO_CHOICES,
+        "estados": Calificacion.ESTADO_CHOICES,
+    }
+
+    return render(request, "nuapp/calificacion_form.html", contexto)
+
+
 
 
 # =========================================================
@@ -253,3 +291,54 @@ def admin_usuarios_view(request):
         "updated_at": timezone.localtime().strftime("%d-%m-%Y %H:%M"),
     }
     return render(request, "nuapp/admin.html", contexto)
+
+
+# =========================================================
+#   CALIFICACIONES (CREAR)
+# =========================================================
+@login_required
+def calificacion_form_view(request):
+    instrumentos = Instrumento.objects.all().order_by("codigo")
+
+    if request.method == "POST":
+        instrumento_id = request.POST.get("instrumento")
+        tipo = request.POST.get("tipo")
+        estado = request.POST.get("estado")
+        fecha = request.POST.get("fecha")
+        monto = request.POST.get("monto") or None
+
+        instrumento = get_object_or_404(Instrumento, id=instrumento_id)
+
+        Calificacion.objects.create(
+            instrumento=instrumento,
+            tipo=tipo,
+            estado=estado,
+            fecha=fecha,
+            monto=monto
+        )
+
+        return redirect("calificaciones")
+
+    contexto = {
+        "active_page": "calificaciones",
+        "instrumentos": instrumentos,
+        "tipos": Calificacion.TIPO_CHOICES,
+        "estados": Calificacion.ESTADO_CHOICES,
+    }
+
+    return render(request, "nuapp/calificacion_form.html", contexto)
+
+
+# =========================================================
+#   CALIFICACIONES (ELIMINAR)
+# =========================================================
+@login_required
+def calificacion_eliminar_view(request, calificacion_id):
+    calificacion = get_object_or_404(Calificacion, id=calificacion_id)
+
+    if request.method == "POST":
+        calificacion.delete()
+        return redirect("calificaciones")
+
+    # si alguien entra por GET, redirigimos igual
+    return redirect("calificaciones")
