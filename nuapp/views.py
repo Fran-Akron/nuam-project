@@ -232,7 +232,6 @@ def calificacion_form_view(request, calificacion_id=None):
         instrumento = get_object_or_404(Instrumento, id=instrumento_id)
 
         if calificacion:
-            # EDITAR
             calificacion.instrumento = instrumento
             calificacion.tipo = tipo
             calificacion.estado = estado
@@ -240,7 +239,6 @@ def calificacion_form_view(request, calificacion_id=None):
             calificacion.monto = monto
             calificacion.save()
         else:
-            # CREAR
             Calificacion.objects.create(
                 instrumento=instrumento,
                 tipo=tipo,
@@ -276,7 +274,7 @@ def calificacion_eliminar_view(request, calificacion_id):
 
 
 # =========================================================
-#   CARGA MASIVA CSV (BASE)
+#   CARGA MASIVA CSV (FIX DEFINITIVO)
 # =========================================================
 @login_required
 def carga_masiva_view(request):
@@ -286,21 +284,45 @@ def carga_masiva_view(request):
 
     if request.method == "POST":
         tipo = request.POST.get("tipo")
+        mercado = request.POST.get("mercado")
         archivo = request.FILES.get("archivo")
 
-        if not archivo or not archivo.name.endswith(".csv"):
-            contexto["error"] = "Debe subir un archivo CSV válido."
+        if not tipo or not archivo:
+            contexto["error"] = "Debe seleccionar un tipo de carga y un archivo CSV."
+            return render(request, "nuapp/carga_masiva.html", contexto)
+
+        if not archivo.name.lower().endswith(".csv"):
+            contexto["error"] = "El archivo debe ser CSV."
             return render(request, "nuapp/carga_masiva.html", contexto)
 
         try:
-            reader = csv.reader(TextIOWrapper(archivo, encoding="utf-8"))
-            next(reader)  # encabezados
+            archivo.seek(0)
+
+            wrapper = TextIOWrapper(
+                archivo,
+                encoding="utf-8-sig",   # 🔥 FIX Excel
+                errors="replace"
+            )
+
+            reader = csv.reader(wrapper, delimiter=";")
+            next(reader, None)
             filas = list(reader)
 
-            contexto["mensaje"] = (
-                f"Archivo CSV leído correctamente. "
-                f"Tipo: {tipo}. Filas: {len(filas)}"
-            )
+            if tipo == "INSTRUMENTOS":
+                if not mercado:
+                    contexto["error"] = "Debe seleccionar un mercado para instrumentos."
+                    return render(request, "nuapp/carga_masiva.html", contexto)
+
+                procesados = cargar_instrumentos_csv(filas, mercado)
+
+            elif tipo == "CALIFICACIONES":
+                procesados = cargar_calificaciones_csv(filas)
+
+            else:
+                contexto["error"] = "Tipo de carga no reconocido."
+                return render(request, "nuapp/carga_masiva.html", contexto)
+
+            contexto["mensaje"] = f"Carga realizada correctamente. Registros procesados: {procesados}"
 
         except Exception as e:
             contexto["error"] = f"Error al procesar el archivo: {e}"
@@ -321,3 +343,50 @@ def admin_usuarios_view(request):
         "updated_at": timezone.localtime().strftime("%d-%m-%Y %H:%M"),
     }
     return render(request, "nuapp/admin.html", contexto)
+
+
+# =========================================================
+#   HELPERS CARGA MASIVA
+# =========================================================
+def cargar_instrumentos_csv(filas, mercado):
+    contador = 0
+
+    for fila in filas:
+        codigo, nombre, tipo, estado, fecha_emision, fecha_vencimiento = fila
+
+        Instrumento.objects.create(
+            codigo=codigo.strip(),
+            nombre=nombre.strip(),
+            tipo=tipo.strip(),
+            mercado=mercado,
+            estado=estado.strip(),
+            fecha_emision=fecha_emision or None,
+            fecha_vencimiento=fecha_vencimiento or None
+        )
+
+        contador += 1
+
+    return contador
+
+
+def cargar_calificaciones_csv(filas):
+    contador = 0
+
+    for fila in filas:
+        codigo_instr, tipo, estado, fecha, monto = fila
+
+        instrumento = Instrumento.objects.filter(codigo=codigo_instr.strip()).first()
+        if not instrumento:
+            continue
+
+        Calificacion.objects.create(
+            instrumento=instrumento,
+            tipo=tipo.strip(),
+            estado=estado.strip(),
+            fecha=fecha,
+            monto=monto or None
+        )
+
+        contador += 1
+
+    return contador
