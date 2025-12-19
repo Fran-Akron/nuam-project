@@ -40,7 +40,10 @@
   <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
     <h2 class="text-sm font-bold text-slate-800">Listado de Calificaciones</h2>
     <span class="text-xs text-slate-500">
-      Total: <span class="font-semibold text-slate-700">{{ calificaciones|length }}</span>
+      Total:
+      <span class="font-semibold text-slate-700">
+        {{ calificaciones|length }}
+      </span>
     </span>
   </div>
 
@@ -96,6 +99,14 @@
           <!-- ACCIONES -->
           <td class="px-4 py-3 text-right">
             <div class="flex justify-end gap-2">
+
+              <!-- EDITAR -->
+              <a
+                href="{% url 'calificacion_editar' c.id %}"
+                title="Editar"
+                class="inline-flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 hover:bg-orange-50">
+                ✏️
+              </a>
 
               <!-- ELIMINAR -->
               <form

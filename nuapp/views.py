@@ -193,7 +193,7 @@ def instrumento_eliminar_view(request, instrumento_id):
 
 
 # =========================================================
-#   CALIFICACIONES (LISTADO REAL)
+#   CALIFICACIONES (LISTADO)
 # =========================================================
 @login_required
 def calificaciones_view(request):
@@ -210,31 +210,50 @@ def calificaciones_view(request):
 
     return render(request, "nuapp/calificaciones.html", contexto)
 
+
+# =========================================================
+#   CALIFICACIONES (CREAR / EDITAR)
+# =========================================================
 @login_required
-def calificacion_form_view(request):
+def calificacion_form_view(request, calificacion_id=None):
+    calificacion = None
     instrumentos = Instrumento.objects.all().order_by("codigo")
+
+    if calificacion_id:
+        calificacion = get_object_or_404(Calificacion, id=calificacion_id)
 
     if request.method == "POST":
         instrumento_id = request.POST.get("instrumento")
         tipo = request.POST.get("tipo")
-        monto = request.POST.get("monto") or None
-        fecha = request.POST.get("fecha")
         estado = request.POST.get("estado")
+        fecha = request.POST.get("fecha")
+        monto = request.POST.get("monto") or None
 
         instrumento = get_object_or_404(Instrumento, id=instrumento_id)
 
-        Calificacion.objects.create(
-            instrumento=instrumento,
-            tipo=tipo,
-            monto=monto,
-            fecha=fecha,
-            estado=estado
-        )
+        if calificacion:
+            # EDITAR
+            calificacion.instrumento = instrumento
+            calificacion.tipo = tipo
+            calificacion.estado = estado
+            calificacion.fecha = fecha
+            calificacion.monto = monto
+            calificacion.save()
+        else:
+            # CREAR
+            Calificacion.objects.create(
+                instrumento=instrumento,
+                tipo=tipo,
+                estado=estado,
+                fecha=fecha,
+                monto=monto
+            )
 
         return redirect("calificaciones")
 
     contexto = {
         "active_page": "calificaciones",
+        "calificacion": calificacion,
         "instrumentos": instrumentos,
         "tipos": Calificacion.TIPO_CHOICES,
         "estados": Calificacion.ESTADO_CHOICES,
@@ -243,6 +262,17 @@ def calificacion_form_view(request):
     return render(request, "nuapp/calificacion_form.html", contexto)
 
 
+# =========================================================
+#   CALIFICACIONES (ELIMINAR)
+# =========================================================
+@login_required
+def calificacion_eliminar_view(request, calificacion_id):
+    calificacion = get_object_or_404(Calificacion, id=calificacion_id)
+
+    if request.method == "POST":
+        calificacion.delete()
+
+    return redirect("calificaciones")
 
 
 # =========================================================
@@ -264,7 +294,7 @@ def carga_masiva_view(request):
 
         try:
             reader = csv.reader(TextIOWrapper(archivo, encoding="utf-8"))
-            encabezados = next(reader)
+            next(reader)  # encabezados
             filas = list(reader)
 
             contexto["mensaje"] = (
@@ -291,54 +321,3 @@ def admin_usuarios_view(request):
         "updated_at": timezone.localtime().strftime("%d-%m-%Y %H:%M"),
     }
     return render(request, "nuapp/admin.html", contexto)
-
-
-# =========================================================
-#   CALIFICACIONES (CREAR)
-# =========================================================
-@login_required
-def calificacion_form_view(request):
-    instrumentos = Instrumento.objects.all().order_by("codigo")
-
-    if request.method == "POST":
-        instrumento_id = request.POST.get("instrumento")
-        tipo = request.POST.get("tipo")
-        estado = request.POST.get("estado")
-        fecha = request.POST.get("fecha")
-        monto = request.POST.get("monto") or None
-
-        instrumento = get_object_or_404(Instrumento, id=instrumento_id)
-
-        Calificacion.objects.create(
-            instrumento=instrumento,
-            tipo=tipo,
-            estado=estado,
-            fecha=fecha,
-            monto=monto
-        )
-
-        return redirect("calificaciones")
-
-    contexto = {
-        "active_page": "calificaciones",
-        "instrumentos": instrumentos,
-        "tipos": Calificacion.TIPO_CHOICES,
-        "estados": Calificacion.ESTADO_CHOICES,
-    }
-
-    return render(request, "nuapp/calificacion_form.html", contexto)
-
-
-# =========================================================
-#   CALIFICACIONES (ELIMINAR)
-# =========================================================
-@login_required
-def calificacion_eliminar_view(request, calificacion_id):
-    calificacion = get_object_or_404(Calificacion, id=calificacion_id)
-
-    if request.method == "POST":
-        calificacion.delete()
-        return redirect("calificaciones")
-
-    # si alguien entra por GET, redirigimos igual
-    return redirect("calificaciones")
