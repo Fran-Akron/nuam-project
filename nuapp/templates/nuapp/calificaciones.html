@@ -1,216 +1,161 @@
 {% extends "nuapp/base.html" %}
 {% block content %}
 
-<!-- Encabezado -->
-<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-  <div>
-    <h1 class="text-2xl font-extrabold text-slate-900">Calificaciones</h1>
-    <p class="text-sm text-slate-500 mt-1">
-      Gestión de calificaciones asociadas a instrumentos financieros.
+<div class="max-w-6xl mx-auto">
+
+  <!-- HEADER -->
+  <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <h1 class="text-2xl font-extrabold text-slate-900">
+        Calificaciones
+      </h1>
+      <p class="text-sm text-slate-500 mt-1">
+        Gestión de calificaciones asociadas a instrumentos financieros.
+      </p>
+    </div>
+
+    <!-- ACCIONES SUPERIORES -->
+    <div class="flex items-center gap-2 relative">
+
+      <!-- EXPORTAR (SOLO UI, SIN LÓGICA) -->
+      <div class="relative group">
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold
+                 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition">
+          ⬇ Exportar
+          <span class="text-xs">▼</span>
+        </button>
+
+        <!-- DROPDOWN -->
+        <div
+          class="absolute right-0 mt-2 w-44 bg-white border border-slate-200
+                 rounded-xl shadow-lg opacity-0 invisible
+                 group-hover:opacity-100 group-hover:visible
+                 transition-all duration-150 z-20">
+
+          <!-- PDF -->
+          <button
+            type="button"
+            disabled
+            class="w-full flex items-center gap-2 px-4 py-2 text-sm
+                   text-slate-400 cursor-not-allowed hover:bg-slate-50 rounded-t-xl">
+            📄 Exportar PDF
+          </button>
+
+          <!-- CSV -->
+          <button
+            type="button"
+            disabled
+            class="w-full flex items-center gap-2 px-4 py-2 text-sm
+                   text-slate-400 cursor-not-allowed hover:bg-slate-50 rounded-b-xl">
+            📊 Exportar CSV
+          </button>
+
+        </div>
+      </div>
+
+      <!-- NUEVA CALIFICACIÓN -->
+      <a href="{% url 'calificacion_nueva' %}"
+         class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold
+                text-white bg-slate-900 hover:bg-slate-800 transition shadow-sm">
+        <span class="text-lg leading-none">＋</span>
+        Nueva calificación
+      </a>
+
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="mt-6 bg-white border border-slate-200 rounded-2xl shadow-sm p-4">
+    <p class="text-xs text-slate-400">
+      * Las calificaciones siempre deben estar asociadas a un instrumento existente.
     </p>
   </div>
 
-  <!-- Acciones -->
-  <div class="flex items-center gap-2">
-    <a
-      href="{% url 'calificacion_nueva' %}"
-      class="px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800 transition">
-      + Nueva Calificación
-    </a>
-
-    <button
-      type="button"
-      class="px-4 py-2 rounded-lg border border-slate-200 text-slate-700 text-sm font-semibold opacity-60 cursor-not-allowed"
-      disabled>
-      Exportar CSV
-    </button>
-  </div>
-</div>
-
-<!-- Info -->
-<div class="bg-white border border-slate-200 rounded-xl shadow-sm p-4 mb-6">
-  <p class="text-xs text-slate-400">
-    * Las calificaciones siempre deben estar asociadas a un instrumento existente.
-  </p>
-</div>
-
-<!-- FILTROS -->
-<form method="get" class="bg-white border border-slate-200 rounded-xl shadow-sm p-4 mb-6">
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-
-    <!-- Código calificación -->
-    <div>
-      <label class="block text-xs font-semibold text-slate-500 mb-1">
-        Código Calificación
-      </label>
-      <input
-        type="text"
-        name="codigo"
-        value="{{ request.GET.codigo }}"
-        placeholder="Ej: CAL-12"
-        class="w-full border rounded-lg px-3 py-2 text-sm">
-    </div>
-
-    <!-- Tipo -->
-    <div>
-      <label class="block text-xs font-semibold text-slate-500 mb-1">
-        Tipo
-      </label>
-      <select name="tipo" class="w-full border rounded-lg px-3 py-2 text-sm">
-        <option value="">Todos</option>
-        {% for value, label in tipos %}
-          <option value="{{ value }}" {% if request.GET.tipo == value %}selected{% endif %}>
-            {{ label }}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <!-- Estado -->
-    <div>
-      <label class="block text-xs font-semibold text-slate-500 mb-1">
-        Estado
-      </label>
-      <select name="estado" class="w-full border rounded-lg px-3 py-2 text-sm">
-        <option value="">Todos</option>
-        {% for value, label in estados %}
-          <option value="{{ value }}" {% if request.GET.estado == value %}selected{% endif %}>
-            {{ label }}
-          </option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <!-- Fecha desde -->
-    <div>
-      <label class="block text-xs font-semibold text-slate-500 mb-1">
-        Fecha desde
-      </label>
-      <input
-        type="date"
-        name="fecha_desde"
-        value="{{ request.GET.fecha_desde }}"
-        class="w-full border rounded-lg px-3 py-2 text-sm">
-    </div>
-
-    <!-- Fecha hasta -->
-    <div>
-      <label class="block text-xs font-semibold text-slate-500 mb-1">
-        Fecha hasta
-      </label>
-      <input
-        type="date"
-        name="fecha_hasta"
-        value="{{ request.GET.fecha_hasta }}"
-        class="w-full border rounded-lg px-3 py-2 text-sm">
-    </div>
-
-  </div>
-
-  <div class="flex justify-end gap-2 mt-4">
-    <a
-      href="{% url 'calificaciones' %}"
-      class="px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold">
-      Limpiar
-    </a>
-
-    <button
-      type="submit"
-      class="px-4 py-2 rounded-lg bg-slate-900 text-white text-sm font-semibold hover:bg-slate-800">
-      Filtrar
-    </button>
-  </div>
-</form>
-
-<!-- Tabla -->
-<div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-
-  <div class="px-4 py-3 border-b border-slate-200 flex items-center justify-between">
-    <h2 class="text-sm font-bold text-slate-800">Listado de Calificaciones</h2>
-    <span class="text-xs text-slate-500">
-      Total:
-      <span class="font-semibold text-slate-700">
-        {{ calificaciones|length }}
+  <!-- TABLA -->
+  <div class="mt-6 bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+    <div class="px-4 py-3 border-b flex justify-between">
+      <span class="font-semibold text-sm">Listado</span>
+      <span class="text-xs text-slate-500">
+        {{ calificaciones|length }} registro(s)
       </span>
-    </span>
-  </div>
+    </div>
 
-  <div class="overflow-x-auto">
-    <table class="min-w-full text-sm">
-      <thead class="bg-slate-50 border-b border-slate-200">
-        <tr class="text-left text-slate-600">
-          <th class="px-4 py-3 font-semibold">Código</th>
-          <th class="px-4 py-3 font-semibold">Instrumento</th>
-          <th class="px-4 py-3 font-semibold">Monto</th>
-          <th class="px-4 py-3 font-semibold">Fecha</th>
-          <th class="px-4 py-3 font-semibold">Tipo</th>
-          <th class="px-4 py-3 font-semibold">Estado</th>
-          <th class="px-4 py-3 font-semibold text-right">Acciones</th>
+    <table class="w-full text-sm">
+      <thead class="bg-slate-50 text-xs uppercase text-slate-500">
+        <tr>
+          <th class="px-4 py-3 text-left">Código</th>
+          <th class="px-4 py-3 text-left">Instrumento</th>
+          <th class="px-4 py-3 text-center">Tipo</th>
+          <th class="px-4 py-3 text-center">Estado</th>
+          <th class="px-4 py-3 text-center">Fecha</th>
+          <th class="px-4 py-3 text-center">Monto</th>
+          <th class="px-4 py-3 text-right">Acciones</th>
         </tr>
       </thead>
 
-      <tbody class="divide-y divide-slate-200">
+      <tbody class="divide-y">
         {% for c in calificaciones %}
         <tr class="hover:bg-slate-50">
-          <td class="px-4 py-3 font-semibold text-slate-700">
+          <td class="px-4 py-3 font-semibold">
             CAL-{{ c.id }}
           </td>
 
-          <td class="px-4 py-3 text-slate-700">
+          <td class="px-4 py-3">
             {{ c.instrumento.codigo }} – {{ c.instrumento.nombre }}
           </td>
 
-          <td class="px-4 py-3 text-slate-700">
-            {{ c.monto|default:"—" }}
-          </td>
-
-          <td class="px-4 py-3 text-slate-700">
-            {{ c.fecha }}
-          </td>
-
-          <td class="px-4 py-3 text-slate-700">
+          <td class="px-4 py-3 text-center">
             {{ c.get_tipo_display }}
           </td>
 
-          <td class="px-4 py-3">
+          <td class="px-4 py-3 text-center">
             {% if c.estado == "ACTIVA" %}
-              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">
+              <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
                 Activa
               </span>
             {% else %}
-              <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">
+              <span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">
                 Inactiva
               </span>
             {% endif %}
           </td>
 
+          <td class="px-4 py-3 text-center">
+            {{ c.fecha }}
+          </td>
+
+          <td class="px-4 py-3 text-center">
+            {{ c.monto|default:"—" }}
+          </td>
+
+          <!-- ACCIONES -->
           <td class="px-4 py-3 text-right">
-            <div class="flex justify-end gap-2">
-              <a
-                href="{% url 'calificacion_editar' c.id %}"
-                class="inline-flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 hover:bg-orange-50"
-                title="Editar">
+            <div class="flex justify-end gap-3">
+
+              <a href="{% url 'calificacion_editar' c.id %}"
+                 title="Editar"
+                 class="inline-flex items-center justify-center w-9 h-9 rounded-xl border hover:bg-orange-50">
                 ✏️
               </a>
 
-              <form
-                action="{% url 'calificacion_eliminar' c.id %}"
-                method="post"
-                onsubmit="return confirm('¿Eliminar esta calificación?');">
+              <form action="{% url 'calificacion_eliminar' c.id %}"
+                    method="post"
+                    onsubmit="return confirm('¿Eliminar esta calificación?');">
                 {% csrf_token %}
-                <button
-                  type="submit"
-                  class="inline-flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 hover:bg-red-50"
-                  title="Eliminar">
+                <button type="submit"
+                        class="inline-flex items-center justify-center w-9 h-9 rounded-xl border hover:bg-red-50">
                   🗑️
                 </button>
               </form>
+
             </div>
           </td>
         </tr>
         {% empty %}
         <tr>
-          <td colspan="7" class="px-4 py-8 text-center text-slate-500">
+          <td colspan="7" class="text-center py-10 text-slate-500">
             No hay calificaciones registradas
           </td>
         </tr>
@@ -219,9 +164,6 @@
     </table>
   </div>
 
-  <div class="px-4 py-3 bg-white border-t border-slate-200 text-xs text-slate-500">
-    Consejo: una calificación no puede existir sin un instrumento.
-  </div>
 </div>
 
 {% endblock %}

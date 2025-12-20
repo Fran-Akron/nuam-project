@@ -14,12 +14,54 @@
       </p>
     </div>
 
-    <!-- BOTÓN NUEVO -->
-    <a href="{% url 'instrumento_nuevo' %}"
-       class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 transition shadow-sm">
-      <span class="text-lg leading-none">＋</span>
-      Nuevo instrumento
-    </a>
+    <!-- ACCIONES SUPERIORES -->
+    <div class="flex items-center gap-2">
+
+      <!-- EXPORTAR (SOLO VISUAL, SIN LÓGICA) -->
+      <div class="relative group">
+        <button
+          type="button"
+          class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold
+                 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition">
+          ⬇ Exportar
+          <span class="text-xs">▼</span>
+        </button>
+
+        <!-- OPCIONES -->
+        <div
+          class="absolute right-0 mt-2 w-40 bg-white border border-slate-200
+                 rounded-xl shadow-lg overflow-hidden
+                 opacity-0 pointer-events-none
+                 group-hover:opacity-100 group-hover:pointer-events-auto
+                 transition">
+
+          <button
+            type="button"
+            disabled
+            class="w-full text-left px-4 py-2 text-sm text-slate-400
+                   hover:bg-slate-50 cursor-not-allowed">
+            📄 Exportar PDF
+          </button>
+
+          <button
+            type="button"
+            disabled
+            class="w-full text-left px-4 py-2 text-sm text-slate-400
+                   hover:bg-slate-50 cursor-not-allowed">
+            📊 Exportar CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- NUEVO INSTRUMENTO -->
+      <a href="{% url 'instrumento_nuevo' %}"
+         class="inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-semibold
+                text-white bg-orange-500 hover:bg-orange-600 transition shadow-sm">
+        <span class="text-lg leading-none">＋</span>
+        Nuevo instrumento
+      </a>
+
+    </div>
   </div>
 
   <!-- FILTROS -->
@@ -115,48 +157,30 @@
 
           <td class="px-4 py-3 text-center">
             {% if i.estado == "ACTIVO" %}
-              <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">
-                Activo
-              </span>
+              <span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-700">Activo</span>
             {% else %}
-              <span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">
-                Inactivo
-              </span>
+              <span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-700">Inactivo</span>
             {% endif %}
           </td>
 
           <td class="px-4 py-3 text-center">{{ i.fecha_emision|default:"—" }}</td>
           <td class="px-4 py-3 text-center">{{ i.fecha_vencimiento|default:"—" }}</td>
 
-          <!-- ACCIONES -->
           <td class="px-4 py-3 text-right">
             <div class="flex justify-end gap-3">
-
-              <!-- VER -->
               <a href="{% url 'instrumento_detalle' i.id %}"
-                 title="Ver"
-                 class="inline-flex items-center justify-center w-9 h-9 rounded-xl border hover:bg-slate-50">
-                👁️
-              </a>
+                 class="inline-flex items-center justify-center w-9 h-9 rounded-xl border hover:bg-slate-50">👁️</a>
 
-              <!-- EDITAR -->
               <a href="{% url 'instrumento_editar' i.id %}"
-                 title="Editar"
-                 class="inline-flex items-center justify-center w-9 h-9 rounded-xl border hover:bg-orange-50">
-                ✏️
-              </a>
+                 class="inline-flex items-center justify-center w-9 h-9 rounded-xl border hover:bg-orange-50">✏️</a>
 
-              <!-- ELIMINAR -->
               <form action="{% url 'instrumento_eliminar' i.id %}"
                     method="post"
                     onsubmit="return confirm('¿Eliminar este instrumento?');">
                 {% csrf_token %}
                 <button type="submit"
-                  class="inline-flex items-center justify-center w-9 h-9 rounded-xl border hover:bg-red-50">
-                  🗑️
-                </button>
+                        class="inline-flex items-center justify-center w-9 h-9 rounded-xl border hover:bg-red-50">🗑️</button>
               </form>
-
             </div>
           </td>
         </tr>
