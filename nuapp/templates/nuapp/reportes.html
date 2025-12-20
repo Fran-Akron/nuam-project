@@ -1,69 +1,196 @@
-{% extends "base.html" %}
-{% with active_page="reportes" %}
-
-{% block title %}Reportes y Análisis - NUAM{% endblock %}
-
+{% extends "nuapp/base.html" %}
 {% block content %}
 
-<h2 class="text-3xl font-bold mb-6 text-white">Reportes y Análisis</h2>
-<p class="text-slate-400 mb-6">
-    Vista general de indicadores clave y resúmenes consolidados de las bolsas de Santiago, Colombia y Lima.
-</p>
-
-<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-
-    <!-- RESUMEN DIARIO -->
-    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-        <div class="text-sm font-semibold text-slate-400 uppercase mb-2">Resumen Diario</div>
-
-        {% for item in resumen %}
-            <p class="text-sm text-slate-300">
-                {{ item.mercado }}:
-                <span class="text-white font-semibold">{{ item.cierre }}</span>
-                {% if item.variacion < 0 %}
-                    <span class="text-red-400">({{ item.variacion }}%)</span>
-                {% else %}
-                    <span class="text-green-400">(+{{ item.variacion }}%)</span>
-                {% endif %}
-            </p>
-        {% empty %}
-            <p class="text-slate-400 text-sm">No hay datos disponibles.</p>
-        {% endfor %}
-    </div>
-
-    <!-- TOP MOVIMIENTOS -->
-    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-        <div class="text-sm font-semibold text-slate-400 uppercase mb-2">Top Movimientos</div>
-        <p class="text-slate-300 text-sm">
-            No se registran movimientos extremos durante la jornada.
-        </p>
-    </div>
-
-    <!-- VOLUMEN DESTACADO -->
-    <div class="bg-slate-800 p-5 rounded-xl shadow-xl border border-slate-700">
-        <div class="text-sm font-semibold text-slate-400 uppercase mb-2">
-            Actividad del Mercado
-        </div>
-
-        {% if mercado_mas_activo %}
-            <p class="text-slate-300 text-sm">
-                El mercado con mayor movimiento del día fue:
-            </p>
-            <p class="text-cyan-400 font-bold text-lg mt-1">
-                {{ mercado_mas_activo.mercado }}
-            </p>
-        {% else %}
-            <p class="text-slate-400 text-sm">
-                No se pudo determinar el mercado más activo.
-            </p>
-        {% endif %}
-    </div>
-
+<!-- =========================================================
+     ENCABEZADO
+========================================================= -->
+<div class="mb-6">
+  <h1 class="text-2xl font-extrabold text-slate-900">Reportes</h1>
+  <p class="text-sm text-slate-500 mt-1">
+    Resumen general de instrumentos, calificaciones y distribución por país.
+  </p>
 </div>
 
-<footer class="mt-10 text-center text-sm text-slate-600 border-t border-slate-800 pt-4">
-    Plataforma NUAM - Reportes y Análisis.
-</footer>
+<!-- =========================================================
+     TOTALES GENERALES
+========================================================= -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <p class="text-xs text-slate-400 mb-1">Total Instrumentos</p>
+    <p class="text-3xl font-extrabold text-slate-900">
+      {{ total_instrumentos }}
+    </p>
+  </div>
+
+  <div class="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
+    <p class="text-xs text-slate-400 mb-1">Total Calificaciones</p>
+    <p class="text-3xl font-extrabold text-slate-900">
+      {{ total_calificaciones }}
+    </p>
+  </div>
+</div>
+
+<!-- =========================================================
+     REPORTE INSTRUMENTOS
+========================================================= -->
+<div class="mb-10">
+  <h2 class="text-lg font-bold text-slate-800 mb-4">
+    Reporte de Instrumentos
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+    <!-- Por Tipo -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <h3 class="text-sm font-semibold text-slate-700 mb-3">
+        Por Tipo
+      </h3>
+      <ul class="text-sm text-slate-600 space-y-1">
+        {% for i in instrumentos_por_tipo %}
+          <li class="flex justify-between">
+            <span>{{ i.tipo }}</span>
+            <span class="font-semibold">{{ i.total }}</span>
+          </li>
+        {% empty %}
+          <li class="text-slate-400">Sin datos</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Por Estado -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <h3 class="text-sm font-semibold text-slate-700 mb-3">
+        Por Estado
+      </h3>
+      <ul class="text-sm text-slate-600 space-y-1">
+        {% for i in instrumentos_por_estado %}
+          <li class="flex justify-between">
+            <span>{{ i.estado }}</span>
+            <span class="font-semibold">{{ i.total }}</span>
+          </li>
+        {% empty %}
+          <li class="text-slate-400">Sin datos</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Por Mercado -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <h3 class="text-sm font-semibold text-slate-700 mb-3">
+        Por Mercado
+      </h3>
+      <ul class="text-sm text-slate-600 space-y-1">
+        {% for i in instrumentos_por_mercado %}
+          <li class="flex justify-between">
+            <span>{{ i.mercado }}</span>
+            <span class="font-semibold">{{ i.total }}</span>
+          </li>
+        {% empty %}
+          <li class="text-slate-400">Sin datos</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </div>
+</div>
+
+<!-- =========================================================
+     REPORTE CALIFICACIONES
+========================================================= -->
+<div class="mb-10">
+  <h2 class="text-lg font-bold text-slate-800 mb-4">
+    Reporte de Calificaciones
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+    <!-- Por Tipo -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <h3 class="text-sm font-semibold text-slate-700 mb-3">
+        Por Tipo
+      </h3>
+      <ul class="text-sm text-slate-600 space-y-1">
+        {% for c in calificaciones_por_tipo %}
+          <li class="flex justify-between">
+            <span>{{ c.tipo }}</span>
+            <span class="font-semibold">{{ c.total }}</span>
+          </li>
+        {% empty %}
+          <li class="text-slate-400">Sin datos</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Por Estado -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <h3 class="text-sm font-semibold text-slate-700 mb-3">
+        Por Estado
+      </h3>
+      <ul class="text-sm text-slate-600 space-y-1">
+        {% for c in calificaciones_por_estado %}
+          <li class="flex justify-between">
+            <span>{{ c.estado }}</span>
+            <span class="font-semibold">{{ c.total }}</span>
+          </li>
+        {% empty %}
+          <li class="text-slate-400">Sin datos</li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <!-- Monto Total -->
+    <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <h3 class="text-sm font-semibold text-slate-700 mb-3">
+        Monto Total Calificado
+      </h3>
+      <p class="text-2xl font-extrabold text-slate-900">
+        {{ monto_total_calificaciones|floatformat:2 }}
+      </p>
+    </div>
+
+  </div>
+</div>
+
+<!-- =========================================================
+     REPORTE POR PAÍS
+========================================================= -->
+<div class="mb-10">
+  <h2 class="text-lg font-bold text-slate-800 mb-4">
+    Reporte por País
+  </h2>
+
+  <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+    <table class="min-w-full text-sm">
+      <thead class="bg-slate-50 border-b border-slate-200">
+        <tr class="text-left text-slate-600">
+          <th class="px-4 py-3 font-semibold">País</th>
+          <th class="px-4 py-3 font-semibold">Instrumentos</th>
+          <th class="px-4 py-3 font-semibold">Calificaciones Activas</th>
+          <th class="px-4 py-3 font-semibold">Monto Activo</th>
+        </tr>
+      </thead>
+      <tbody class="divide-y divide-slate-200">
+        {% for p in paises %}
+        <tr>
+          <td class="px-4 py-3 font-semibold text-slate-700">
+            {{ p.mercado_label }} ({{ p.mercado }})
+          </td>
+          <td class="px-4 py-3">{{ p.instrumentos }}</td>
+          <td class="px-4 py-3">{{ p.calificaciones_activas }}</td>
+          <td class="px-4 py-3">
+            {{ p.monto_activo|floatformat:2 }}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="4" class="px-4 py-6 text-center text-slate-500">
+            No hay datos por país
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
 
 {% endblock %}
-{% endwith %}

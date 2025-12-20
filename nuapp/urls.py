@@ -71,3 +71,26 @@ urlpatterns = [
     # =========================
     path("admin/", views.admin_usuarios_view, name="admin"),
 ]
+
+
+# =========================
+# REPORTES
+# =========================
+path("reportes/", views.reportes_view, name="reportes"),
+
+
+
+# =========================
+# EXPORTACIONES CSV
+# =========================
+path(
+    "instrumentos/exportar/csv/",
+    views.exportar_instrumentos_csv,
+    name="exportar_instrumentos_csv"
+),
+
+path(
+    "calificaciones/exportar/csv/",
+    views.exportar_calificaciones_csv,
+    name="exportar_calificaciones_csv"
+),

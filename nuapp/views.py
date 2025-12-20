@@ -1,3 +1,4 @@
+from django.db.models import Count, Sum
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
@@ -77,13 +78,41 @@ def crear_cuenta_view(request):
 # =========================================================
 #   DASHBOARD
 # =========================================================
+
+# =========================================================
+#   DASHBOARD
+# =========================================================
 @login_required
 def dashboard_view(request):
+    # Instrumentos por mercado
+    inst_chile = Instrumento.objects.filter(mercado="CL").count()
+    inst_peru = Instrumento.objects.filter(mercado="PE").count()
+    inst_colombia = Instrumento.objects.filter(mercado="CO").count()
+
+    # Calificaciones por mercado (vía instrumento)
+    cal_chile = Calificacion.objects.filter(instrumento__mercado="CL").count()
+    cal_peru = Calificacion.objects.filter(instrumento__mercado="PE").count()
+    cal_colombia = Calificacion.objects.filter(instrumento__mercado="CO").count()
+
     contexto = {
         "active_page": "dashboard",
         "updated_at": timezone.localtime().strftime("%d-%m-%Y %H:%M"),
+
+        # Instrumentos
+        "inst_chile": inst_chile,
+        "inst_peru": inst_peru,
+        "inst_colombia": inst_colombia,
+
+        # Calificaciones
+        "cal_chile": cal_chile,
+        "cal_peru": cal_peru,
+        "cal_colombia": cal_colombia,
     }
+
     return render(request, "nuapp/dashboard.html", contexto)
+
+
+
 
 
 # =========================================================
@@ -99,7 +128,11 @@ def instrumentos_view(request):
     estado = request.GET.get("estado", "")
 
     if q:
-        instrumentos = instrumentos.filter(codigo__icontains=q) | instrumentos.filter(nombre__icontains=q)
+        instrumentos = instrumentos.filter(
+            codigo__icontains=q
+        ) | instrumentos.filter(
+            nombre__icontains=q
+        )
 
     if tipo:
         instrumentos = instrumentos.filter(tipo=tipo)
@@ -184,7 +217,7 @@ def instrumento_eliminar_view(request, instrumento_id):
 
 
 # =========================================================
-#   CALIFICACIONES (LISTADO)
+#   CALIFICACIONES (LISTADO + FILTROS)
 # =========================================================
 @login_required
 def calificaciones_view(request):
@@ -194,9 +227,35 @@ def calificaciones_view(request):
         .order_by("-fecha")
     )
 
+    codigo = request.GET.get("codigo", "")
+    tipo = request.GET.get("tipo", "")
+    estado = request.GET.get("estado", "")
+    fecha_desde = request.GET.get("fecha_desde", "")
+    fecha_hasta = request.GET.get("fecha_hasta", "")
+
+    # Código de calificación (CAL-12 o 12)
+    if codigo:
+        codigo = codigo.replace("CAL-", "")
+        if codigo.isdigit():
+            calificaciones = calificaciones.filter(id=codigo)
+
+    if tipo:
+        calificaciones = calificaciones.filter(tipo=tipo)
+
+    if estado:
+        calificaciones = calificaciones.filter(estado=estado)
+
+    if fecha_desde:
+        calificaciones = calificaciones.filter(fecha__gte=fecha_desde)
+
+    if fecha_hasta:
+        calificaciones = calificaciones.filter(fecha__lte=fecha_hasta)
+
     contexto = {
         "active_page": "calificaciones",
         "calificaciones": calificaciones,
+        "tipos": Calificacion.TIPO_CHOICES,
+        "estados": Calificacion.ESTADO_CHOICES,
     }
     return render(request, "nuapp/calificaciones.html", contexto)
 
@@ -263,12 +322,7 @@ def calificacion_eliminar_view(request, calificacion_id):
 
 
 # =========================================================
-#   CARGA MASIVA (ESTABLE POR AHORA - NO TOCAR)
-#   Deja la ruta viva para que el proyecto corra.
-#   Luego retomamos la lógica sin romper el resto.
-# =========================================================
-# =========================================================
-#   CARGA MASIVA
+#   CARGA MASIVA (ESTABLE - NO TOCAR)
 # =========================================================
 import io
 import csv
@@ -309,10 +363,6 @@ def carga_masiva_view(request):
 
 
 def _abrir_csv(file_obj):
-    """
-    Intenta leer CSV con UTF-8 con BOM; si falla, usa latin-1 (típico de Excel en Windows).
-    Retorna (io.TextIOWrapper, encoding_utilizado)
-    """
     try:
         return io.TextIOWrapper(file_obj, encoding="utf-8-sig"), "utf-8-sig"
     except UnicodeDecodeError:
@@ -326,31 +376,29 @@ def cargar_instrumentos_csv(archivo, mercado):
     reader = csv.DictReader(wrapper, delimiter=",")
 
     if reader.fieldnames != encabezados:
-        return False, "Encabezados inválidos para instrumentos. Deben ser: " + ",".join(encabezados)
+        return False, "Encabezados inválidos para instrumentos."
 
     creados = 0
-    try:
-        with transaction.atomic():
-            for row in reader:
-                codigo = (row["codigo"] or "").strip()
-                if not codigo:
-                    continue
+    with transaction.atomic():
+        for row in reader:
+            codigo = (row["codigo"] or "").strip()
+            if not codigo:
+                continue
 
-                Instrumento.objects.update_or_create(
-                    codigo=codigo,
-                    defaults={
-                        "nombre": (row["nombre"] or "").strip(),
-                        "tipo": (row["tipo"] or "").strip(),          # ACCION/BONO/DERIVADO/OTRO
-                        "estado": (row["estado"] or "").strip(),      # ACTIVO/INACTIVO
-                        "mercado": mercado,                           # Desde el formulario
-                        "fecha_emision": parse_date(row["fecha_emision"] or None),
-                        "fecha_vencimiento": parse_date(row["fecha_vencimiento"] or None),
-                    },
-                )
-                creados += 1
-        return True, f"Instrumentos procesados correctamente: {creados}"
-    except Exception as e:
-        return False, f"Error al cargar instrumentos: {e}"
+            Instrumento.objects.update_or_create(
+                codigo=codigo,
+                defaults={
+                    "nombre": (row["nombre"] or "").strip(),
+                    "tipo": (row["tipo"] or "").strip(),
+                    "estado": (row["estado"] or "").strip(),
+                    "mercado": mercado,
+                    "fecha_emision": parse_date(row["fecha_emision"] or None),
+                    "fecha_vencimiento": parse_date(row["fecha_vencimiento"] or None),
+                },
+            )
+            creados += 1
+
+    return True, f"Instrumentos procesados correctamente: {creados}"
 
 
 def cargar_calificaciones_csv(archivo):
@@ -359,33 +407,27 @@ def cargar_calificaciones_csv(archivo):
     reader = csv.DictReader(wrapper, delimiter=",")
 
     if reader.fieldnames != encabezados:
-        return False, "Encabezados inválidos para calificaciones. Deben ser: " + ",".join(encabezados)
+        return False, "Encabezados inválidos para calificaciones."
 
     creadas = 0
-    try:
-        with transaction.atomic():
-            for row in reader:
-                codigo_instr = (row["codigo_instrumento"] or "").strip()
-                if not codigo_instr:
-                    continue
+    with transaction.atomic():
+        for row in reader:
+            codigo_instr = (row["codigo_instrumento"] or "").strip()
+            if not codigo_instr:
+                continue
 
-                try:
-                    instrumento = Instrumento.objects.get(codigo=codigo_instr)
-                except Instrumento.DoesNotExist:
-                    return False, f"Instrumento no encontrado: {codigo_instr}"
+            instrumento = Instrumento.objects.get(codigo=codigo_instr)
 
-                Calificacion.objects.create(
-                    instrumento=instrumento,
-                    tipo=(row["tipo"] or "").strip(),       # RIESGO/CREDITO/TRIBUTARIA
-                    estado=(row["estado"] or "").strip(),   # ACTIVA/INACTIVA
-                    fecha=parse_date(row["fecha"] or None),
-                    monto=row["monto"] or None,
-                )
-                creadas += 1
-        return True, f"Calificaciones procesadas correctamente: {creadas}"
-    except Exception as e:
-        return False, f"Error al cargar calificaciones: {e}"
+            Calificacion.objects.create(
+                instrumento=instrumento,
+                tipo=(row["tipo"] or "").strip(),
+                estado=(row["estado"] or "").strip(),
+                fecha=parse_date(row["fecha"] or None),
+                monto=row["monto"] or None,
+            )
+            creadas += 1
 
+    return True, f"Calificaciones procesadas correctamente: {creadas}"
 
 
 # =========================================================
@@ -401,3 +443,218 @@ def admin_usuarios_view(request):
         "updated_at": timezone.localtime().strftime("%d-%m-%Y %H:%M"),
     }
     return render(request, "nuapp/admin.html", contexto)
+
+
+# =========================================================
+#   REPORTES (INSTRUMENTOS / CALIFICACIONES / POR PAÍS)
+# =========================================================
+@login_required
+def reportes_view(request):
+    # -------------------------
+    # Totales generales
+    # -------------------------
+    total_instrumentos = Instrumento.objects.count()
+    total_calificaciones = Calificacion.objects.count()
+
+    # -------------------------
+    # Reporte Instrumentos
+    # -------------------------
+    instrumentos_por_tipo = (
+        Instrumento.objects
+        .values("tipo")
+        .annotate(total=Count("id"))
+        .order_by("tipo")
+    )
+
+    instrumentos_por_estado = (
+        Instrumento.objects
+        .values("estado")
+        .annotate(total=Count("id"))
+        .order_by("estado")
+    )
+
+    instrumentos_por_mercado = (
+        Instrumento.objects
+        .values("mercado")
+        .annotate(total=Count("id"))
+        .order_by("mercado")
+    )
+
+    # -------------------------
+    # Reporte Calificaciones
+    # -------------------------
+    calificaciones_por_tipo = (
+        Calificacion.objects
+        .values("tipo")
+        .annotate(total=Count("id"))
+        .order_by("tipo")
+    )
+
+    calificaciones_por_estado = (
+        Calificacion.objects
+        .values("estado")
+        .annotate(total=Count("id"))
+        .order_by("estado")
+    )
+
+    monto_total_calificaciones = (
+        Calificacion.objects.aggregate(total=Sum("monto"))["total"] or 0
+    )
+
+    # -------------------------
+    # Reporte por País (Mercado)
+    # Instrumentos por mercado + Calificaciones activas por mercado
+    # + Suma montos por mercado (solo activas)
+    # -------------------------
+    # Base instrumentos por mercado
+    base = (
+        Instrumento.objects
+        .values("mercado")
+        .annotate(
+            instrumentos=Count("id"),
+            calificaciones_activas=Count(
+                "calificaciones",
+                filter=Calificacion.objects.filter(estado="ACTIVA").query.where
+            )
+        )
+    )
+
+    # ⚠️ El filtro anterior con .query.where puede variar según versión.
+    # Para hacerlo 100% compatible, lo reemplazaremos en el Paso 2 si da problemas.
+    # Por ahora, dejamos el reporte por mercado simple y estable:
+
+    paises = []
+    for codigo, nombre in Instrumento.MERCADO_CHOICES:
+        instrumentos_qs = Instrumento.objects.filter(mercado=codigo)
+        calif_activas_qs = Calificacion.objects.filter(instrumento__mercado=codigo, estado="ACTIVA")
+
+        paises.append({
+            "mercado": codigo,
+            "mercado_label": nombre,
+            "instrumentos": instrumentos_qs.count(),
+            "calificaciones_activas": calif_activas_qs.count(),
+            "monto_activo": calif_activas_qs.aggregate(total=Sum("monto"))["total"] or 0,
+        })
+
+    contexto = {
+        "active_page": "reportes",
+
+        "total_instrumentos": total_instrumentos,
+        "total_calificaciones": total_calificaciones,
+
+        "instrumentos_por_tipo": instrumentos_por_tipo,
+        "instrumentos_por_estado": instrumentos_por_estado,
+        "instrumentos_por_mercado": instrumentos_por_mercado,
+
+        "calificaciones_por_tipo": calificaciones_por_tipo,
+        "calificaciones_por_estado": calificaciones_por_estado,
+        "monto_total_calificaciones": monto_total_calificaciones,
+
+        "paises": paises,
+    }
+    return render(request, "nuapp/reportes.html", contexto)
+
+
+# =========================================================
+#   EXPORTAR CSV - INSTRUMENTOS
+# =========================================================
+import csv
+from django.http import HttpResponse
+
+@login_required
+def exportar_instrumentos_csv(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="instrumentos.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        "Codigo", "Nombre", "Tipo", "Mercado",
+        "Estado", "Fecha Emision", "Fecha Vencimiento"
+    ])
+
+    instrumentos = Instrumento.objects.all().order_by("codigo")
+
+    for i in instrumentos:
+        writer.writerow([
+            i.codigo,
+            i.nombre,
+            i.get_tipo_display(),
+            i.get_mercado_display(),
+            i.get_estado_display(),
+            i.fecha_emision or "",
+            i.fecha_vencimiento or "",
+        ])
+
+    return response
+
+
+# =========================================================
+#   EXPORTAR CSV - CALIFICACIONES
+# =========================================================
+@login_required
+def exportar_calificaciones_csv(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="calificaciones.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        "Codigo Calificacion", "Codigo Instrumento",
+        "Tipo", "Estado", "Fecha", "Monto"
+    ])
+
+    calificaciones = (
+        Calificacion.objects
+        .select_related("instrumento")
+        .order_by("-fecha")
+    )
+
+    for c in calificaciones:
+        writer.writerow([
+            f"CAL-{c.id}",
+            c.instrumento.codigo,
+            c.get_tipo_display(),
+            c.get_estado_display(),
+            c.fecha,
+            c.monto or "",
+        ])
+
+    return response
+
+
+# =========================================================
+#   EXPORTACIÓN CSV
+# =========================================================
+import csv
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+
+@login_required
+def exportar_instrumentos_csv(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="instrumentos.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        "Código",
+        "Nombre",
+        "Tipo",
+        "Mercado",
+        "Estado",
+        "Fecha Emisión",
+        "Fecha Vencimiento",
+    ])
+
+    instrumentos = Instrumento.objects.all().order_by("codigo")
+
+    for i in instrumentos:
+        writer.writerow([
+            i.codigo,
+            i.nombre,
+            i.get_tipo_display(),
+            i.get_mercado_display(),
+            i.estado,
+            i.fecha_emision or "",
+            i.fecha_vencimiento or "",
+        ])
+
+    return response
