@@ -3,8 +3,6 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.utils import timezone
-import csv
-from io import TextIOWrapper
 
 from .models import Instrumento, Calificacion
 
@@ -101,11 +99,7 @@ def instrumentos_view(request):
     estado = request.GET.get("estado", "")
 
     if q:
-        instrumentos = instrumentos.filter(
-            codigo__icontains=q
-        ) | instrumentos.filter(
-            nombre__icontains=q
-        )
+        instrumentos = instrumentos.filter(codigo__icontains=q) | instrumentos.filter(nombre__icontains=q)
 
     if tipo:
         instrumentos = instrumentos.filter(tipo=tipo)
@@ -120,7 +114,6 @@ def instrumentos_view(request):
         "active_page": "instrumentos",
         "instrumentos": instrumentos,
     }
-
     return render(request, "nuapp/instrumentos.html", contexto)
 
 
@@ -161,7 +154,6 @@ def instrumento_form_view(request, instrumento_id=None):
         "mercados": Instrumento.MERCADO_CHOICES,
         "estados": Instrumento.ESTADO_CHOICES,
     }
-
     return render(request, "nuapp/instrumento_form.html", contexto)
 
 
@@ -177,7 +169,6 @@ def instrumento_detalle_view(request, instrumento_id):
         "instrumento": instrumento,
         "calificaciones": instrumento.calificaciones.all(),
     }
-
     return render(request, "nuapp/instrumento_detalle.html", contexto)
 
 
@@ -207,7 +198,6 @@ def calificaciones_view(request):
         "active_page": "calificaciones",
         "calificaciones": calificaciones,
     }
-
     return render(request, "nuapp/calificaciones.html", contexto)
 
 
@@ -256,7 +246,6 @@ def calificacion_form_view(request, calificacion_id=None):
         "tipos": Calificacion.TIPO_CHOICES,
         "estados": Calificacion.ESTADO_CHOICES,
     }
-
     return render(request, "nuapp/calificacion_form.html", contexto)
 
 
@@ -274,60 +263,129 @@ def calificacion_eliminar_view(request, calificacion_id):
 
 
 # =========================================================
-#   CARGA MASIVA CSV (FIX DEFINITIVO)
+#   CARGA MASIVA (ESTABLE POR AHORA - NO TOCAR)
+#   Deja la ruta viva para que el proyecto corra.
+#   Luego retomamos la lógica sin romper el resto.
 # =========================================================
+# =========================================================
+#   CARGA MASIVA
+# =========================================================
+import io
+import csv
+from django.db import transaction
+from django.utils.dateparse import parse_date
+
 @login_required
 def carga_masiva_view(request):
-    contexto = {
-        "active_page": "carga_masiva",
-    }
+    contexto = {"active_page": "carga_masiva"}
 
     if request.method == "POST":
         tipo = request.POST.get("tipo")
-        mercado = request.POST.get("mercado")
         archivo = request.FILES.get("archivo")
+        mercado = request.POST.get("mercado")
 
-        if not tipo or not archivo:
-            contexto["error"] = "Debe seleccionar un tipo de carga y un archivo CSV."
+        if not archivo:
+            contexto["error"] = "Debes seleccionar un archivo CSV."
             return render(request, "nuapp/carga_masiva.html", contexto)
 
-        if not archivo.name.lower().endswith(".csv"):
-            contexto["error"] = "El archivo debe ser CSV."
-            return render(request, "nuapp/carga_masiva.html", contexto)
-
-        try:
-            archivo.seek(0)
-
-            wrapper = TextIOWrapper(
-                archivo,
-                encoding="utf-8-sig",   # 🔥 FIX Excel
-                errors="replace"
-            )
-
-            reader = csv.reader(wrapper, delimiter=";")
-            next(reader, None)
-            filas = list(reader)
-
-            if tipo == "INSTRUMENTOS":
-                if not mercado:
-                    contexto["error"] = "Debe seleccionar un mercado para instrumentos."
-                    return render(request, "nuapp/carga_masiva.html", contexto)
-
-                procesados = cargar_instrumentos_csv(filas, mercado)
-
-            elif tipo == "CALIFICACIONES":
-                procesados = cargar_calificaciones_csv(filas)
-
-            else:
-                contexto["error"] = "Tipo de carga no reconocido."
+        if tipo == "INSTRUMENTOS":
+            if not mercado:
+                contexto["error"] = "Selecciona un mercado para cargar instrumentos."
                 return render(request, "nuapp/carga_masiva.html", contexto)
 
-            contexto["mensaje"] = f"Carga realizada correctamente. Registros procesados: {procesados}"
+            ok, msg = cargar_instrumentos_csv(archivo, mercado)
+        elif tipo == "CALIFICACIONES":
+            ok, msg = cargar_calificaciones_csv(archivo)
+        else:
+            contexto["error"] = "Tipo de carga no reconocido."
+            return render(request, "nuapp/carga_masiva.html", contexto)
 
-        except Exception as e:
-            contexto["error"] = f"Error al procesar el archivo: {e}"
+        if ok:
+            contexto["mensaje"] = msg
+        else:
+            contexto["error"] = msg
 
     return render(request, "nuapp/carga_masiva.html", contexto)
+
+
+def _abrir_csv(file_obj):
+    """
+    Intenta leer CSV con UTF-8 con BOM; si falla, usa latin-1 (típico de Excel en Windows).
+    Retorna (io.TextIOWrapper, encoding_utilizado)
+    """
+    try:
+        return io.TextIOWrapper(file_obj, encoding="utf-8-sig"), "utf-8-sig"
+    except UnicodeDecodeError:
+        file_obj.seek(0)
+        return io.TextIOWrapper(file_obj, encoding="latin-1"), "latin-1"
+
+
+def cargar_instrumentos_csv(archivo, mercado):
+    encabezados = ["codigo", "nombre", "tipo", "estado", "fecha_emision", "fecha_vencimiento"]
+    wrapper, _ = _abrir_csv(archivo)
+    reader = csv.DictReader(wrapper, delimiter=",")
+
+    if reader.fieldnames != encabezados:
+        return False, "Encabezados inválidos para instrumentos. Deben ser: " + ",".join(encabezados)
+
+    creados = 0
+    try:
+        with transaction.atomic():
+            for row in reader:
+                codigo = (row["codigo"] or "").strip()
+                if not codigo:
+                    continue
+
+                Instrumento.objects.update_or_create(
+                    codigo=codigo,
+                    defaults={
+                        "nombre": (row["nombre"] or "").strip(),
+                        "tipo": (row["tipo"] or "").strip(),          # ACCION/BONO/DERIVADO/OTRO
+                        "estado": (row["estado"] or "").strip(),      # ACTIVO/INACTIVO
+                        "mercado": mercado,                           # Desde el formulario
+                        "fecha_emision": parse_date(row["fecha_emision"] or None),
+                        "fecha_vencimiento": parse_date(row["fecha_vencimiento"] or None),
+                    },
+                )
+                creados += 1
+        return True, f"Instrumentos procesados correctamente: {creados}"
+    except Exception as e:
+        return False, f"Error al cargar instrumentos: {e}"
+
+
+def cargar_calificaciones_csv(archivo):
+    encabezados = ["codigo_instrumento", "tipo", "estado", "fecha", "monto"]
+    wrapper, _ = _abrir_csv(archivo)
+    reader = csv.DictReader(wrapper, delimiter=",")
+
+    if reader.fieldnames != encabezados:
+        return False, "Encabezados inválidos para calificaciones. Deben ser: " + ",".join(encabezados)
+
+    creadas = 0
+    try:
+        with transaction.atomic():
+            for row in reader:
+                codigo_instr = (row["codigo_instrumento"] or "").strip()
+                if not codigo_instr:
+                    continue
+
+                try:
+                    instrumento = Instrumento.objects.get(codigo=codigo_instr)
+                except Instrumento.DoesNotExist:
+                    return False, f"Instrumento no encontrado: {codigo_instr}"
+
+                Calificacion.objects.create(
+                    instrumento=instrumento,
+                    tipo=(row["tipo"] or "").strip(),       # RIESGO/CREDITO/TRIBUTARIA
+                    estado=(row["estado"] or "").strip(),   # ACTIVA/INACTIVA
+                    fecha=parse_date(row["fecha"] or None),
+                    monto=row["monto"] or None,
+                )
+                creadas += 1
+        return True, f"Calificaciones procesadas correctamente: {creadas}"
+    except Exception as e:
+        return False, f"Error al cargar calificaciones: {e}"
+
 
 
 # =========================================================
@@ -343,50 +401,3 @@ def admin_usuarios_view(request):
         "updated_at": timezone.localtime().strftime("%d-%m-%Y %H:%M"),
     }
     return render(request, "nuapp/admin.html", contexto)
-
-
-# =========================================================
-#   HELPERS CARGA MASIVA
-# =========================================================
-def cargar_instrumentos_csv(filas, mercado):
-    contador = 0
-
-    for fila in filas:
-        codigo, nombre, tipo, estado, fecha_emision, fecha_vencimiento = fila
-
-        Instrumento.objects.create(
-            codigo=codigo.strip(),
-            nombre=nombre.strip(),
-            tipo=tipo.strip(),
-            mercado=mercado,
-            estado=estado.strip(),
-            fecha_emision=fecha_emision or None,
-            fecha_vencimiento=fecha_vencimiento or None
-        )
-
-        contador += 1
-
-    return contador
-
-
-def cargar_calificaciones_csv(filas):
-    contador = 0
-
-    for fila in filas:
-        codigo_instr, tipo, estado, fecha, monto = fila
-
-        instrumento = Instrumento.objects.filter(codigo=codigo_instr.strip()).first()
-        if not instrumento:
-            continue
-
-        Calificacion.objects.create(
-            instrumento=instrumento,
-            tipo=tipo.strip(),
-            estado=estado.strip(),
-            fecha=fecha,
-            monto=monto or None
-        )
-
-        contador += 1
-
-    return contador
