@@ -658,3 +658,166 @@ def exportar_instrumentos_csv(request):
         ])
 
     return response
+
+# =========================================================
+#   EXPORTACIÓN DE INSTRUMENTOS
+# =========================================================
+import csv
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+
+from .models import Instrumento
+
+
+# ---------------------------------------------------------
+# EXPORTAR INSTRUMENTOS - CSV
+# ---------------------------------------------------------
+@login_required
+def exportar_instrumentos_csv(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="instrumentos.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        "Código",
+        "Nombre",
+        "Tipo",
+        "Mercado",
+        "Estado",
+        "Fecha Emisión",
+        "Fecha Vencimiento",
+    ])
+
+    instrumentos = Instrumento.objects.all().order_by("codigo")
+
+    for i in instrumentos:
+        writer.writerow([
+            i.codigo,
+            i.nombre,
+            i.get_tipo_display(),
+            i.get_mercado_display(),
+            i.estado,
+            i.fecha_emision or "",
+            i.fecha_vencimiento or "",
+        ])
+
+    return response
+
+
+# ---------------------------------------------------------
+# EXPORTAR INSTRUMENTOS - PDF (PLACEHOLDER FUNCIONAL)
+# ---------------------------------------------------------
+@login_required
+def exportar_instrumentos_pdf(request):
+    """
+    Exportación PDF básica.
+    En el próximo paso la dejamos bonita (tabla, estilos, etc).
+    """
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="instrumentos.pdf"'
+
+    response.write("EXPORTACIÓN PDF DE INSTRUMENTOS\n\n")
+
+    instrumentos = Instrumento.objects.all().order_by("codigo")
+
+    for i in instrumentos:
+        response.write(
+            f"{i.codigo} | {i.nombre} | "
+            f"{i.get_tipo_display()} | "
+            f"{i.get_mercado_display()} | "
+            f"{i.estado}\n"
+        )
+
+    return response
+
+
+# =========================================================
+#   EXPORTACIÓN DE CALIFICACIONES
+# =========================================================
+import csv
+from django.http import HttpResponse
+from django.contrib.auth.decorators import login_required
+
+from .models import Calificacion
+
+
+# ---------------------------------------------------------
+# EXPORTAR CALIFICACIONES - CSV
+# ---------------------------------------------------------
+@login_required
+def exportar_calificaciones_csv(request):
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = 'attachment; filename="calificaciones.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        "Código",
+        "Instrumento",
+        "Tipo",
+        "Estado",
+        "Fecha",
+        "Monto",
+    ])
+
+    calificaciones = Calificacion.objects.select_related("instrumento").all().order_by("id")
+
+    for c in calificaciones:
+        writer.writerow([
+            f"CAL-{c.id}",
+            f"{c.instrumento.codigo} - {c.instrumento.nombre}",
+            c.get_tipo_display(),
+            c.estado,
+            c.fecha,
+            c.monto or "",
+        ])
+
+    return response
+
+
+# ---------------------------------------------------------
+# EXPORTAR CALIFICACIONES - PDF (PLACEHOLDER FUNCIONAL)
+# ---------------------------------------------------------
+@login_required
+def exportar_calificaciones_pdf(request):
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="calificaciones.pdf"'
+
+    response.write("EXPORTACIÓN PDF DE CALIFICACIONES\n\n")
+
+    calificaciones = Calificacion.objects.select_related("instrumento").all().order_by("id")
+
+    for c in calificaciones:
+        response.write(
+            f"CAL-{c.id} | "
+            f"{c.instrumento.codigo} - {c.instrumento.nombre} | "
+            f"{c.get_tipo_display()} | "
+            f"{c.estado} | "
+            f"{c.fecha} | "
+            f"{c.monto}\n"
+        )
+
+    return response
+
+# ---------------------------------------------------------
+# EXPORTAR CALIFICACIONES - PDF (PLACEHOLDER FUNCIONAL)
+# ---------------------------------------------------------
+@login_required
+def exportar_calificaciones_pdf(request):
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="calificaciones.pdf"'
+
+    response.write("EXPORTACIÓN PDF DE CALIFICACIONES\n\n")
+
+    calificaciones = Calificacion.objects.select_related("instrumento").all().order_by("id")
+
+    for c in calificaciones:
+        response.write(
+            f"CAL-{c.id} | "
+            f"{c.instrumento.codigo} | "
+            f"{c.get_tipo_display()} | "
+            f"{c.estado} | "
+            f"{c.fecha} | "
+            f"{c.monto or ''}\n"
+        )
+
+    return response

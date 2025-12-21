@@ -2,7 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-
     # =========================
     # HOME
     # =========================
@@ -28,17 +27,17 @@ urlpatterns = [
     path(
         "instrumentos/editar/<int:instrumento_id>/",
         views.instrumento_form_view,
-        name="instrumento_editar"
+        name="instrumento_editar",
     ),
     path(
         "instrumentos/ver/<int:instrumento_id>/",
         views.instrumento_detalle_view,
-        name="instrumento_detalle"
+        name="instrumento_detalle",
     ),
     path(
         "instrumentos/eliminar/<int:instrumento_id>/",
         views.instrumento_eliminar_view,
-        name="instrumento_eliminar"
+        name="instrumento_eliminar",
     ),
 
     # =========================
@@ -48,17 +47,17 @@ urlpatterns = [
     path(
         "calificaciones/nueva/",
         views.calificacion_form_view,
-        name="calificacion_nueva"
+        name="calificacion_nueva",
     ),
     path(
         "calificaciones/editar/<int:calificacion_id>/",
         views.calificacion_form_view,
-        name="calificacion_editar"
+        name="calificacion_editar",
     ),
     path(
         "calificaciones/eliminar/<int:calificacion_id>/",
         views.calificacion_eliminar_view,
-        name="calificacion_eliminar"
+        name="calificacion_eliminar",
     ),
 
     # =========================
@@ -70,27 +69,33 @@ urlpatterns = [
     # ADMIN
     # =========================
     path("admin/", views.admin_usuarios_view, name="admin"),
-]
 
+    # =========================
+    # REPORTES
+    # =========================
+    path("reportes/", views.reportes_view, name="reportes"),
 
-# =========================
-# REPORTES
-# =========================
-path("reportes/", views.reportes_view, name="reportes"),
-
-
-
-# =========================
-# EXPORTACIONES CSV
+  # =========================
+# EXPORTACIONES CSV/PDF
 # =========================
 path(
     "instrumentos/exportar/csv/",
     views.exportar_instrumentos_csv,
-    name="exportar_instrumentos_csv"
+    name="exportar_instrumentos_csv",
 ),
-
+path(
+    "instrumentos/exportar/pdf/",
+    views.exportar_instrumentos_pdf,
+    name="exportar_instrumentos_pdf",
+),
 path(
     "calificaciones/exportar/csv/",
     views.exportar_calificaciones_csv,
-    name="exportar_calificaciones_csv"
+    name="exportar_calificaciones_csv",
 ),
+path(
+    "calificaciones/exportar/pdf/",
+    views.exportar_calificaciones_pdf,
+    name="exportar_calificaciones_pdf",
+),
+]

@@ -17,7 +17,7 @@
     <!-- ACCIONES SUPERIORES -->
     <div class="flex items-center gap-2">
 
-      <!-- EXPORTAR (SOLO VISUAL, SIN LÓGICA) -->
+      <!-- EXPORTAR -->
       <div class="relative group">
         <button
           type="button"
@@ -27,29 +27,26 @@
           <span class="text-xs">▼</span>
         </button>
 
-        <!-- OPCIONES -->
+        <!-- DROPDOWN -->
         <div
-          class="absolute right-0 mt-2 w-40 bg-white border border-slate-200
+          class="absolute right-0 mt-2 w-44 bg-white border border-slate-200
                  rounded-xl shadow-lg overflow-hidden
                  opacity-0 pointer-events-none
                  group-hover:opacity-100 group-hover:pointer-events-auto
+                 group-focus-within:opacity-100 group-focus-within:pointer-events-auto
                  transition">
 
-          <button
-            type="button"
-            disabled
-            class="w-full text-left px-4 py-2 text-sm text-slate-400
-                   hover:bg-slate-50 cursor-not-allowed">
+          <a
+            href="{% url 'exportar_instrumentos_pdf' %}"
+            class="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
             📄 Exportar PDF
-          </button>
+          </a>
 
-          <button
-            type="button"
-            disabled
-            class="w-full text-left px-4 py-2 text-sm text-slate-400
-                   hover:bg-slate-50 cursor-not-allowed">
+          <a
+            href="{% url 'exportar_instrumentos_csv' %}"
+            class="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
             📊 Exportar CSV
-          </button>
+          </a>
         </div>
       </div>
 

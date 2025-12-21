@@ -15,9 +15,9 @@
     </div>
 
     <!-- ACCIONES SUPERIORES -->
-    <div class="flex items-center gap-2 relative">
+    <div class="flex items-center gap-2">
 
-      <!-- EXPORTAR (SOLO UI, SIN LÓGICA) -->
+      <!-- EXPORTAR (MISMO BLOQUE QUE INSTRUMENTOS) -->
       <div class="relative group">
         <button
           type="button"
@@ -30,28 +30,23 @@
         <!-- DROPDOWN -->
         <div
           class="absolute right-0 mt-2 w-44 bg-white border border-slate-200
-                 rounded-xl shadow-lg opacity-0 invisible
-                 group-hover:opacity-100 group-hover:visible
-                 transition-all duration-150 z-20">
+                 rounded-xl shadow-lg overflow-hidden
+                 opacity-0 pointer-events-none
+                 group-hover:opacity-100 group-hover:pointer-events-auto
+                 group-focus-within:opacity-100 group-focus-within:pointer-events-auto
+                 transition">
 
-          <!-- PDF -->
-          <button
-            type="button"
-            disabled
-            class="w-full flex items-center gap-2 px-4 py-2 text-sm
-                   text-slate-400 cursor-not-allowed hover:bg-slate-50 rounded-t-xl">
+          <a
+            href="{% url 'exportar_calificaciones_pdf' %}"
+            class="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
             📄 Exportar PDF
-          </button>
+          </a>
 
-          <!-- CSV -->
-          <button
-            type="button"
-            disabled
-            class="w-full flex items-center gap-2 px-4 py-2 text-sm
-                   text-slate-400 cursor-not-allowed hover:bg-slate-50 rounded-b-xl">
+          <a
+            href="{% url 'exportar_calificaciones_csv' %}"
+            class="block w-full text-left px-4 py-2 text-sm text-slate-700 hover:bg-slate-50">
             📊 Exportar CSV
-          </button>
-
+          </a>
         </div>
       </div>
 
